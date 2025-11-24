@@ -9,8 +9,8 @@ import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
-import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
-import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 public class GroovuinoMLModel {
 	private List<Brick> bricks;
@@ -26,7 +26,7 @@ public class GroovuinoMLModel {
 	}
 	
 	public void createSensor(String name, Integer pinNumber) {
-		Sensor sensor = new Sensor();
+		DigitalSensor sensor = new DigitalSensor();
 		sensor.setName(name);
 		sensor.setPin(pinNumber);
 		this.bricks.add(sensor);
@@ -50,7 +50,7 @@ public class GroovuinoMLModel {
 		this.binding.setVariable(name, state);
 	}
 	
-	public void createTransition(State from, State to, Sensor sensor, SIGNAL value) {
+	public void createTransition(State from, State to, DigitalSensor sensor, DIGITAL_SIGNAL value) {
 		SignalTransition transition = new SignalTransition();
 		transition.setNext(to);
 		transition.setSensor(sensor);

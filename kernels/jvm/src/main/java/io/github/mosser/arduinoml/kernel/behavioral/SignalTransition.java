@@ -1,28 +1,28 @@
 package io.github.mosser.arduinoml.kernel.behavioral;
 
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
-import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
-import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 public class SignalTransition extends Transition {
 
-    private Sensor sensor;
-    private SIGNAL value;
+    private DigitalSensor sensor;
+    private DIGITAL_SIGNAL value;
 
 
-    public Sensor getSensor() {
+    public DigitalSensor getSensor() {
         return sensor;
     }
 
-    public void setSensor(Sensor sensor) {
+    public void setSensor(DigitalSensor sensor) {
         this.sensor = sensor;
     }
 
-    public SIGNAL getValue() {
+    public DIGITAL_SIGNAL getValue() {
         return value;
     }
 
-    public void setValue(SIGNAL value) {
+    public void setValue(DIGITAL_SIGNAL value) {
         this.value = value;
     }
 

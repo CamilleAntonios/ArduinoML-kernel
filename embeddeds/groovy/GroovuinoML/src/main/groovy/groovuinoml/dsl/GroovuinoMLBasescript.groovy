@@ -1,11 +1,11 @@
 package main.groovy.groovuinoml.dsl
 
-import io.github.mosser.arduinoml.kernel.behavioral.TimeUnit
+
 import io.github.mosser.arduinoml.kernel.behavioral.Action
 import io.github.mosser.arduinoml.kernel.behavioral.State
 import io.github.mosser.arduinoml.kernel.structural.Actuator
-import io.github.mosser.arduinoml.kernel.structural.Sensor
-import io.github.mosser.arduinoml.kernel.structural.SIGNAL
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor
+import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL
 
 abstract class GroovuinoMLBasescript extends Script {
 //	public static Number getDuration(Number number, TimeUnit unit) throws IOException {
@@ -33,7 +33,7 @@ abstract class GroovuinoMLBasescript extends Script {
 			[becomes: { signal ->
 				Action action = new Action()
 				action.setActuator(actuator instanceof String ? (Actuator)((GroovuinoMLBinding)this.getBinding()).getVariable(actuator) : (Actuator)actuator)
-				action.setValue(signal instanceof String ? (SIGNAL)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (SIGNAL)signal)
+				action.setValue(signal instanceof String ? (DIGITAL_SIGNAL)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DIGITAL_SIGNAL)signal)
 				actions.add(action)
 				[and: closure]
 			}]
@@ -54,8 +54,8 @@ abstract class GroovuinoMLBasescript extends Script {
 					((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
 						state1 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state1) : (State)state1, 
 						state2 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state2) : (State)state2, 
-						sensor instanceof String ? (Sensor)((GroovuinoMLBinding)this.getBinding()).getVariable(sensor) : (Sensor)sensor, 
-						signal instanceof String ? (SIGNAL)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (SIGNAL)signal)
+						sensor instanceof String ? (DigitalSensor)((GroovuinoMLBinding)this.getBinding()).getVariable(sensor) : (DigitalSensor)sensor,
+						signal instanceof String ? (DIGITAL_SIGNAL)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DIGITAL_SIGNAL)signal)
 				}]
 			},
 			after: { delay ->

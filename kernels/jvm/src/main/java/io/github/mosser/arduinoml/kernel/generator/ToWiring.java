@@ -3,6 +3,7 @@ package io.github.mosser.arduinoml.kernel.generator;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 /**
  * Quick and dirty visitor to support the generation of Wiring code
@@ -73,7 +74,7 @@ public class ToWiring extends Visitor<StringBuffer> {
 
 
 	@Override
-	public void visit(Sensor sensor) {
+	public void visit(DigitalSensor sensor) {
 		if(context.get("pass") == PASS.ONE) {
 			w(String.format("\nboolean %sBounceGuard = false;\n", sensor.getName()));
 			w(String.format("long %sLastDebounceTime = 0;\n", sensor.getName()));

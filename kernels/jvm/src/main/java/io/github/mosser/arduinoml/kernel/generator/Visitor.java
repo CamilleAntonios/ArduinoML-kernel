@@ -3,6 +3,7 @@ package io.github.mosser.arduinoml.kernel.generator;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
 import io.github.mosser.arduinoml.kernel.App;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public abstract class Visitor<T> {
 	public abstract void visit(Action action);
 
 	public abstract void visit(Actuator actuator);
-	public abstract void visit(Sensor sensor);
+	public abstract void visit(DigitalSensor sensor);
 
 
 	/***********************

@@ -5,7 +5,7 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
-import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public class AppBuilder {
         return this;
     }
 
-    public static Brick sensor(String name, int port) { return createBrick(Sensor.class, name, port);  }
+    public static Brick sensor(String name, int port) { return createBrick(DigitalSensor.class, name, port);  }
     public static Brick actuator(String name, int port) { return createBrick(Actuator.class, name, port);  }
 
     private static Brick createBrick(Class< ? extends Brick> kind, String name, int port) {
@@ -74,10 +74,10 @@ public class AppBuilder {
         Map<String, State> stateTable =
                 theApp.getStates().stream().collect(Collectors.toMap(State::getName, Function.identity()));
 
-        Map<String, Sensor> sensorTable =
+        Map<String, DigitalSensor> sensorTable =
                 theApp.getBricks().stream()
-                        .filter(b -> b instanceof Sensor)
-                        .map( b -> (Sensor) b)
+                        .filter(b -> b instanceof DigitalSensor)
+                        .map( b -> (DigitalSensor) b)
                         .collect(Collectors.toMap(Brick::getName, Function.identity()));
 
         return new TransitionTableBuilder(this, stateTable, sensorTable);

@@ -1,8 +1,7 @@
 package io.github.mosser.arduinoml.embedded.java.dsl;
 
 import io.github.mosser.arduinoml.kernel.behavioral.State;
-import io.github.mosser.arduinoml.kernel.behavioral.Transition;
-import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 import java.util.Map;
 
@@ -10,9 +9,9 @@ public class TransitionTableBuilder {
 
     private AppBuilder parent;
     private Map<String, State> states;
-    private Map<String, Sensor> sensors;
+    private Map<String, DigitalSensor> sensors;
 
-    TransitionTableBuilder(AppBuilder parent, Map<String, State> states, Map<String, Sensor> sensors) {
+    TransitionTableBuilder(AppBuilder parent, Map<String, State> states, Map<String, DigitalSensor> sensors) {
         this.parent = parent;
         this.states = states;
         this.sensors = sensors;
@@ -29,8 +28,8 @@ public class TransitionTableBuilder {
     }
 
 
-    Sensor findSensor(String sensorName) {
-        Sensor s = sensors.get(sensorName);
+    DigitalSensor findSensor(String sensorName) {
+        DigitalSensor s = sensors.get(sensorName);
         if (s == null)
             throw new IllegalArgumentException("Unknown sensor: [" + sensorName + "]");
         return s;

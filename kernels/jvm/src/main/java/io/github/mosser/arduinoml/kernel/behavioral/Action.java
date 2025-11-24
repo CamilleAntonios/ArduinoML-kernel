@@ -3,19 +3,19 @@ package io.github.mosser.arduinoml.kernel.behavioral;
 import io.github.mosser.arduinoml.kernel.generator.Visitable;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
-import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
 
 public class Action implements Visitable {
 
-	private SIGNAL value;
+	private DIGITAL_SIGNAL value;
 	private Actuator actuator;
 
 
-	public SIGNAL getValue() {
+	public DIGITAL_SIGNAL getValue() {
 		return value;
 	}
 
-	public void setValue(SIGNAL value) {
+	public void setValue(DIGITAL_SIGNAL value) {
 		this.value = value;
 	}
 

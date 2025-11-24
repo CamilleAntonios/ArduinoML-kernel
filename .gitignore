@@ -3,5 +3,6 @@ embeddeds/haskell/dist
 # Python
 *.py[cod]
 
-
-
+.idea/
+node_modules/
+.gradle/

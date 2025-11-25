@@ -5,6 +5,14 @@ import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
 import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerOrEqualAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.EqualAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.XorOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
@@ -174,4 +182,71 @@ public class ToWiring extends Visitor<StringBuffer> {
 			w(String.format("\t\t\tdigitalWrite(%d,%s);\n",digitalAction.getActuator().getPin(),digitalAction.getValue()));
 		}
 	}
+
+
+    //Expression implementations
+    // on encadre toujours une expression avec des parenthèses !! Au cas où, cela permet de fixer la priorité
+    @Override
+    public void visit(NotOperation notOp) {
+        //but : produire !(L_EXPRESSION_ENFANT)
+        //cette expression là n'a pas besoin de parenthèses, car l'opération "not" inclue la parenthèse
+
+        w("!(");
+        notOp.getExpr().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(DigitalEqualOperation digitalEqualOp) {
+        //produit ( VALEUR_GAUCHE == VALEUR_DROITE )
+        w("(" + digitalEqualOp.getLeft().toString() + " == " +  digitalEqualOp.getRight().toString() + ")");
+    }
+
+    @Override
+    public void visit(AndOperation andOp) {
+        //produit (EXPR_GAUCHE && EXPR_DROITE)
+        w("(");
+        andOp.getLeft().accept(this);
+        w(" && ");
+        andOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(OrOperation orOp) {
+        //produit (EXPR_GAUCHE || EXPR_DROITE)
+        w("(");
+        orOp.getLeft().accept(this);
+        w(" || ");
+        orOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(XorOperation xorOp) {
+        //produit (EXPR_GAUCHE ^ EXPR_DROITE)
+        w("(");
+        xorOp.getLeft().accept(this);
+        w(" ^ ");
+        xorOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(EqualAnalogOperation analogEqualOp) {
+        //produit (EXPR_GAUCHE == EXPR_DROITE)
+        w("(" + analogEqualOp.getLeft() + " == " + analogEqualOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(BiggerAnalogOperation biggerAnalogOp) {
+        //produit (EXPR_GAUCHE > EXPR_DROITE)
+        w("(" + biggerAnalogOp.getLeft() + " > " + biggerAnalogOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(BiggerOrEqualAnalogOperation biggerOrEqAnalogOp) {
+        //produit (EXPR_GAUCHE >= EXPR_DROITE)
+        w("(" + biggerOrEqAnalogOp.getLeft() + " >= " + biggerOrEqAnalogOp.getRight() + ")");
+    }
 }

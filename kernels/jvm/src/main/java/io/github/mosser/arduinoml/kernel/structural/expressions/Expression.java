@@ -1,4 +1,6 @@
 package io.github.mosser.arduinoml.kernel.structural.expressions;
 
-public interface Expression {
+import io.github.mosser.arduinoml.kernel.generator.Visitable;
+
+public interface Expression extends Visitable {
 }

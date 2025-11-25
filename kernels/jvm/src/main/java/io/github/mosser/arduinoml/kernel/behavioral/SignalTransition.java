@@ -1,13 +1,13 @@
 package io.github.mosser.arduinoml.kernel.behavioral;
 
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 public class SignalTransition extends Transition {
 
     private DigitalSensor sensor;
-    private DIGITAL_SIGNAL value;
+    private DigitalSignalConstant value;
 
 
     public DigitalSensor getSensor() {
@@ -18,11 +18,11 @@ public class SignalTransition extends Transition {
         this.sensor = sensor;
     }
 
-    public DIGITAL_SIGNAL getValue() {
+    public DigitalSignalConstant getValue() {
         return value;
     }
 
-    public void setValue(DIGITAL_SIGNAL value) {
+    public void setValue(DigitalSignalConstant value) {
         this.value = value;
     }
 

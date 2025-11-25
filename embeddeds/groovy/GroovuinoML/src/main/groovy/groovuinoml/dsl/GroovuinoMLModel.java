@@ -9,7 +9,7 @@ import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 public class GroovuinoMLModel {
@@ -50,7 +50,7 @@ public class GroovuinoMLModel {
 		this.binding.setVariable(name, state);
 	}
 	
-	public void createTransition(State from, State to, DigitalSensor sensor, DIGITAL_SIGNAL value) {
+	public void createTransition(State from, State to, DigitalSensor sensor, DigitalSignalConstant value) {
 		SignalTransition transition = new SignalTransition();
 		transition.setNext(to);
 		transition.setSensor(sensor);

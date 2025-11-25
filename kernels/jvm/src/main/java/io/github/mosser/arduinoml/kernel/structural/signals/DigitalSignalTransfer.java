@@ -11,7 +11,12 @@ public class DigitalSignalTransfer implements DigitalSignal {
     public DigitalSensor getSensor() {
         return sensor;
     }
-    public void setSensor(DigialSensor sensor) {
+    public void setSensor(DigitalSensor sensor) {
         this.sensor = sensor;
+    }
+
+    @Override
+    public String toString(){
+        return String.format("digitalRead(%d)", this.sensor.getPin());
     }
 }

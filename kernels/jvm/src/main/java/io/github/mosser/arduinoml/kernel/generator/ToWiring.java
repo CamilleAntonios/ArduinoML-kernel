@@ -126,6 +126,18 @@ public class ToWiring extends Visitor<StringBuffer> {
 	}
 
 	@Override
+	public void visit(BasicTransition transition) {
+		if(context.get("pass") == PASS.ONE) {
+			return;
+		}
+		if(context.get("pass") == PASS.TWO) {
+			w("\t\t\t\tcurrentState = " + transition.getNext().getName() + ";\n");
+			w("\t\t\t}\n");
+			return;
+		}
+	}
+
+	@Override
 	public void visit(TimeTransition transition) {
 		if(context.get("pass") == PASS.ONE) {
 			return;

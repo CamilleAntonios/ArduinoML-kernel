@@ -2,7 +2,7 @@ package io.github.mosser.arduinoml.embedded.java.dsl;
 
 
 import io.github.mosser.arduinoml.kernel.behavioral.SignalTransition;
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
 public class TransitionBuilder {
 
@@ -24,12 +24,12 @@ public class TransitionBuilder {
     }
 
     public TransitionBuilder isHigh() {
-        local.setValue(DIGITAL_SIGNAL.HIGH);
+        local.setValue(DigitalSignalConstant.HIGH);
         return this;
     }
 
     public TransitionBuilder isLow() {
-        local.setValue(DIGITAL_SIGNAL.LOW);
+        local.setValue(DigitalSignalConstant.LOW);
         return this;
     }
 

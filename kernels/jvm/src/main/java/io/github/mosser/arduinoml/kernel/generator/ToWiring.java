@@ -3,6 +3,17 @@ package io.github.mosser.arduinoml.kernel.generator;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
+import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerOrEqualAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.EqualAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.XorOperation;
+import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 /**
@@ -61,13 +72,32 @@ public class ToWiring extends Visitor<StringBuffer> {
 			"}");
 	}
 
+
+
+    @Override
+    public void visit(AnalogActuator actuator) {
+        if(context.get("pass") == PASS.TWO) {
+            w(String.format("  pinMode(%d, OUTPUT); // %s [Analogic Actuator]\n", actuator.getPin(), actuator.getName()));
+        }
+    }
+
+    @Override
+    public void visit(AnalogSensor sensor) {
+        if(context.get("pass") == PASS.TWO) {
+            //en arduino, pas besoin d'initialiser quoi que ce soit pour lire en analogique.
+            //on écrit quand même un commentaire pour que ce soit clair mais voilà
+            w(String.format("  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : %s \n", sensor.getName()));
+            return;
+        }
+    }
+
 	@Override
-	public void visit(Actuator actuator) {
+	public void visit(DigitalActuator actuator) {
 		if(context.get("pass") == PASS.ONE) {
 			return;
 		}
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format("  pinMode(%d, OUTPUT); // %s [Actuator]\n", actuator.getPin(), actuator.getName()));
+			w(String.format("  pinMode(%d, OUTPUT); // %s [Digital Actuator]\n", actuator.getPin(), actuator.getName()));
 			return;
 		}
 	}
@@ -81,7 +111,7 @@ public class ToWiring extends Visitor<StringBuffer> {
 			return;
 		}
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format("  pinMode(%d, INPUT);  // %s [Sensor]\n", sensor.getPin(), sensor.getName()));
+			w(String.format("  pinMode(%d, INPUT);  // %s [Digital Sensor]\n", sensor.getPin(), sensor.getName()));
 			return;
 		}
 	}
@@ -152,14 +182,99 @@ public class ToWiring extends Visitor<StringBuffer> {
 	}
 
 	@Override
-	public void visit(Action action) {
+	public void visit(BasicTransition transition) {
 		if(context.get("pass") == PASS.ONE) {
 			return;
 		}
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format("\t\t\tdigitalWrite(%d,%s);\n",action.getActuator().getPin(),action.getValue()));
+			w("\t\t\tif (");
+			visit(transition.getCondition());
+			w(") {\n"); w("\t\t\t\tcurrentState = " + transition.getNext().getName() + ";\n");
+			w("\t\t\t}\n");
 			return;
 		}
 	}
+
+	@Override
+	public void visit(AnalogAction analogAction) {
+		if(context.get("pass") == PASS.TWO) {
+			w(String.format("\t\t\tanalogWrite(%d,%s);\n",analogAction.getActuator().getPin(),analogAction.getValue()));
+		}
+	}
+
+	@Override
+	public void visit(DigitalAction digitalAction) {
+		if(context.get("pass") == PASS.TWO) {
+			w(String.format("\t\t\tdigitalWrite(%d,%s);\n",digitalAction.getActuator().getPin(),digitalAction.getValue()));
+		}
+	}
+
+
+    //Expression implementations
+    // on encadre toujours une expression avec des parenthèses !! Au cas où, cela permet de fixer la priorité
+    @Override
+    public void visit(NotOperation notOp) {
+        //but : produire !(L_EXPRESSION_ENFANT)
+        //cette expression là n'a pas besoin de parenthèses, car l'opération "not" inclue la parenthèse
+
+        w("!(");
+        notOp.getExpr().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(DigitalEqualOperation digitalEqualOp) {
+        //produit ( VALEUR_GAUCHE == VALEUR_DROITE )
+        w("(" + digitalEqualOp.getLeft().toString() + " == " +  digitalEqualOp.getRight().toString() + ")");
+    }
+
+    @Override
+    public void visit(AndOperation andOp) {
+        //produit (EXPR_GAUCHE && EXPR_DROITE)
+        w("(");
+        andOp.getLeft().accept(this);
+        w(" && ");
+        andOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(OrOperation orOp) {
+        //produit (EXPR_GAUCHE || EXPR_DROITE)
+        w("(");
+        orOp.getLeft().accept(this);
+        w(" || ");
+        orOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(XorOperation xorOp) {
+        //produit (EXPR_GAUCHE ^ EXPR_DROITE)
+        w("(");
+        xorOp.getLeft().accept(this);
+        w(" ^ ");
+        xorOp.getRight().accept(this);
+        w(")");
+    }
+
+    @Override
+    public void visit(EqualAnalogOperation analogEqualOp) {
+        //produit (EXPR_GAUCHE == EXPR_DROITE)
+        w("(" + analogEqualOp.getLeft() + " == " + analogEqualOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(BiggerAnalogOperation biggerAnalogOp) {
+        //produit (EXPR_GAUCHE > EXPR_DROITE)
+        w("(" + biggerAnalogOp.getLeft() + " > " + biggerAnalogOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(BiggerOrEqualAnalogOperation biggerOrEqAnalogOp) {
+        //produit (EXPR_GAUCHE >= EXPR_DROITE)
+        w("(" + biggerOrEqAnalogOp.getLeft() + " >= " + biggerOrEqAnalogOp.getRight() + ")");
+    }
+
 
 }

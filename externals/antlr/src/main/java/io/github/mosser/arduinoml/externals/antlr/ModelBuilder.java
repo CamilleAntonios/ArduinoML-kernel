@@ -7,8 +7,8 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
 import io.github.mosser.arduinoml.kernel.behavioral.SignalTransition;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
-import io.github.mosser.arduinoml.kernel.structural.Actuator;
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 import java.util.HashMap;
@@ -33,14 +33,14 @@ public class ModelBuilder extends ArduinomlBaseListener {
      *******************/
 
     private Map<String, DigitalSensor>   sensors   = new HashMap<>();
-    private Map<String, Actuator> actuators = new HashMap<>();
+    private Map<String, DigitalActuator> actuators = new HashMap<>();
     private Map<String, State>    states  = new HashMap<>();
     private Map<String, Binding>  bindings  = new HashMap<>();
 
     private class Binding { // used to support state resolution for transitions
         String to; // name of the next state, as its instance might not have been compiled yet
         DigitalSensor trigger;
-        DIGITAL_SIGNAL value;
+        DigitalSignalConstant value;
     }
 
     private State currentState = null;
@@ -83,7 +83,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
 
     @Override
     public void enterActuator(ArduinomlParser.ActuatorContext ctx) {
-        Actuator actuator = new Actuator();
+        DigitalActuator actuator = new DigitalActuator();
         actuator.setName(ctx.location().id.getText());
         actuator.setPin(Integer.parseInt(ctx.location().port.getText()));
         this.theApp.getBricks().add(actuator);
@@ -108,7 +108,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     public void enterAction(ArduinomlParser.ActionContext ctx) {
         Action action = new Action();
         action.setActuator(actuators.get(ctx.receiver.getText()));
-        action.setValue(DIGITAL_SIGNAL.valueOf(ctx.value.getText()));
+        action.setValue(DigitalSignalConstant.valueOf(ctx.value.getText()));
         currentState.getActions().add(action);
     }
 
@@ -118,7 +118,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
         Binding toBeResolvedLater = new Binding();
         toBeResolvedLater.to      = ctx.next.getText();
         toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
-        toBeResolvedLater.value   = DIGITAL_SIGNAL.valueOf(ctx.value.getText());
+        toBeResolvedLater.value   = DigitalSignalConstant.valueOf(ctx.value.getText());
         bindings.put(currentState.getName(), toBeResolvedLater);
     }
 

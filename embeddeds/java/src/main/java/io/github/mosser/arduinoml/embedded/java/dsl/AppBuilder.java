@@ -3,7 +3,7 @@ package io.github.mosser.arduinoml.embedded.java.dsl;
 
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
-import io.github.mosser.arduinoml.kernel.structural.Actuator;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
@@ -41,7 +41,7 @@ public class AppBuilder {
     }
 
     public static Brick sensor(String name, int port) { return createBrick(DigitalSensor.class, name, port);  }
-    public static Brick actuator(String name, int port) { return createBrick(Actuator.class, name, port);  }
+    public static Brick actuator(String name, int port) { return createBrick(DigitalActuator.class, name, port);  }
 
     private static Brick createBrick(Class< ? extends Brick> kind, String name, int port) {
         try {
@@ -88,13 +88,13 @@ public class AppBuilder {
      ** Helpers to avoid a symbol table for Bricks (using the App under construction) **
      ***********************************************************************************/
 
-    Optional<Actuator> findActuator(String name) {
+    Optional<DigitalActuator> findActuator(String name) {
         Optional<Brick> b = theApp.getBricks()
                 .stream()
-                    .filter( brick    -> brick instanceof Actuator)
+                    .filter( brick    -> brick instanceof DigitalActuator)
                     .filter( actuator -> actuator.getName().equals(name))
                 .findFirst();
-        return b.map(sensor -> Optional.of((Actuator) sensor)).orElse(Optional.empty());
+        return b.map(sensor -> Optional.of((DigitalActuator) sensor)).orElse(Optional.empty());
     }
 
 }

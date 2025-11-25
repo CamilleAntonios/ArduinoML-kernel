@@ -4,9 +4,9 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
-import io.github.mosser.arduinoml.kernel.structural.*;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
 import java.util.Arrays;
 
@@ -19,7 +19,7 @@ public class Switch {
 		button.setName("button");
 		button.setPin(9);
 
-		Actuator led = new Actuator();
+		DigitalActuator led = new DigitalActuator();
 		led.setName("LED");
 		led.setPin(12);
 
@@ -31,13 +31,13 @@ public class Switch {
 		off.setName("off");
 
 		// Creating actions
-		Action switchTheLightOn = new Action();
+		DigitalAction switchTheLightOn = new DigitalAction();
 		switchTheLightOn.setActuator(led);
-		switchTheLightOn.setValue(DIGITAL_SIGNAL.HIGH);
+		switchTheLightOn.setValue(DigitalSignalConstant.HIGH);
 
-		Action switchTheLightOff = new Action();
+		DigitalAction switchTheLightOff = new DigitalAction();
 		switchTheLightOff.setActuator(led);
-		switchTheLightOff.setValue(DIGITAL_SIGNAL.LOW);
+		switchTheLightOff.setValue(DigitalSignalConstant.LOW);
 
 		// Binding actions to states
 		on.setActions(Arrays.asList(switchTheLightOn));
@@ -47,12 +47,12 @@ public class Switch {
 		SignalTransition on2off = new SignalTransition();
 		on2off.setNext(off);
 		on2off.setSensor(button);
-		on2off.setValue(DIGITAL_SIGNAL.HIGH);
+		on2off.setValue(DigitalSignalConstant.HIGH);
 
 		SignalTransition off2on = new SignalTransition();
 		off2on.setNext(on);
 		off2on.setSensor(button);
-		off2on.setValue(DIGITAL_SIGNAL.HIGH);
+		off2on.setValue(DigitalSignalConstant.HIGH);
 
 		// Binding transitions to states
 		on.setTransition(on2off);

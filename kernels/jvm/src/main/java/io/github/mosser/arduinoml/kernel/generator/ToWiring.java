@@ -162,13 +162,16 @@ public class ToWiring extends Visitor<StringBuffer> {
 	}
 
 	@Override
-	public void visit(Action action) {
-		if(context.get("pass") == PASS.ONE) {
-			return;
-		}
+	public void visit(AnalogAction analogAction) {
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format("\t\t\tdigitalWrite(%d,%s);\n",action.getActuator().getPin(),action.getValue()));
-			return;
+			w(String.format("\t\t\tanalogWrite(%d,%s);\n",analogAction.getActuator().getPin(),analogAction.getValue()));
+		}
+	}
+
+	@Override
+	public void visit(DigitalAction digitalAction) {
+		if(context.get("pass") == PASS.TWO) {
+			w(String.format("\t\t\tdigitalWrite(%d,%s);\n",digitalAction.getActuator().getPin(),digitalAction.getValue()));
 		}
 	}
 }

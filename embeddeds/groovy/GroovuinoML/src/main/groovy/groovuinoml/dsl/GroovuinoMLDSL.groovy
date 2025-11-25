@@ -3,7 +3,7 @@ package main.groovy.groovuinoml.dsl
 import io.github.mosser.arduinoml.kernel.behavioral.TimeUnit
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer
-import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant
 
 class GroovuinoMLDSL {
 	private GroovyShell shell
@@ -18,8 +18,8 @@ class GroovuinoMLDSL {
 		configuration.setScriptBaseClass("main.groovy.groovuinoml.dsl.GroovuinoMLBasescript")
 		shell = new GroovyShell(configuration)
 		
-		binding.setVariable("high", DIGITAL_SIGNAL.HIGH)
-		binding.setVariable("low", DIGITAL_SIGNAL.LOW)
+		binding.setVariable("high", DigitalSignalConstant.HIGH)
+		binding.setVariable("low", DigitalSignalConstant.LOW)
 		for (TimeUnit unit : TimeUnit.values()) {
 			binding.setVariable(unit.name().toLowerCase(), unit);
 		}

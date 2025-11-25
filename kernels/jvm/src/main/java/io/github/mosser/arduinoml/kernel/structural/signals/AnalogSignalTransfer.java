@@ -15,4 +15,9 @@ public class AnalogSignalTransfer extends AnalogSignal {
     public void setSensor(AnalogSensor sensor) {
         this.sensor = sensor;
     }
+
+    @Override
+    public String toString(){
+        return String.format("analogRead(%s)", this.sensor.getPin());
+    }
 }

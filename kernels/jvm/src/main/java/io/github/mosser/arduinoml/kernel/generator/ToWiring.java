@@ -64,13 +64,32 @@ public class ToWiring extends Visitor<StringBuffer> {
 			"}");
 	}
 
+
+
+    @Override
+    public void visit(AnalogActuator actuator) {
+        if(context.get("pass") == PASS.TWO) {
+            w(String.format("  pinMode(%d, OUTPUT); // %s [Analogic Actuator]\n", actuator.getPin(), actuator.getName()));
+        }
+    }
+
+    @Override
+    public void visit(AnalogSensor sensor) {
+        if(context.get("pass") == PASS.TWO) {
+            //en arduino, pas besoin d'initialiser quoi que ce soit pour lire en analogique.
+            //on écrit quand même un commentaire pour que ce soit clair mais voilà
+            w(String.format("  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : %s \n", sensor.getName()));
+            return;
+        }
+    }
+
 	@Override
 	public void visit(DigitalActuator actuator) {
 		if(context.get("pass") == PASS.ONE) {
 			return;
 		}
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format("  pinMode(%d, OUTPUT); // %s [Actuator]\n", actuator.getPin(), actuator.getName()));
+			w(String.format("  pinMode(%d, OUTPUT); // %s [Digital Actuator]\n", actuator.getPin(), actuator.getName()));
 			return;
 		}
 	}
@@ -78,16 +97,15 @@ public class ToWiring extends Visitor<StringBuffer> {
 
 	@Override
 	public void visit(DigitalSensor sensor) {
-//        TODO: replace this code. it was meant for the "Sensor" class
-//		if(context.get("pass") == PASS.ONE) {
-//			w(String.format("\nboolean %sBounceGuard = false;\n", sensor.getName()));
-//			w(String.format("long %sLastDebounceTime = 0;\n", sensor.getName()));
-//			return;
-//		}
-//		if(context.get("pass") == PASS.TWO) {
-//			w(String.format("  pinMode(%d, INPUT);  // %s [Sensor]\n", sensor.getPin(), sensor.getName()));
-//			return;
-//		}
+		if(context.get("pass") == PASS.ONE) {
+			w(String.format("\nboolean %sBounceGuard = false;\n", sensor.getName()));
+			w(String.format("long %sLastDebounceTime = 0;\n", sensor.getName()));
+			return;
+		}
+		if(context.get("pass") == PASS.TWO) {
+			w(String.format("  pinMode(%d, INPUT);  // %s [Digital Sensor]\n", sensor.getPin(), sensor.getName()));
+			return;
+		}
 	}
 
 	@Override
@@ -153,14 +171,4 @@ public class ToWiring extends Visitor<StringBuffer> {
 			return;
 		}
 	}
-
-    @Override
-    public void visit(AnalogActuator actuator) {
-        //TODO
-    }
-
-    @Override
-    public void visit(AnalogSensor sensor) {
-        //TODO
-    }
 }

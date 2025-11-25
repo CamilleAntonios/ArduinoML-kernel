@@ -4,7 +4,7 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
-import io.github.mosser.arduinoml.kernel.structural.*;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL;
 
@@ -19,7 +19,7 @@ public class Switch {
 		button.setName("button");
 		button.setPin(9);
 
-		Actuator led = new Actuator();
+		DigitalActuator led = new DigitalActuator();
 		led.setName("LED");
 		led.setPin(12);
 

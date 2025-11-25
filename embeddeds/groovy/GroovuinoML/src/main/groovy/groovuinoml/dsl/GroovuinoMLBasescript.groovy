@@ -3,7 +3,7 @@ package main.groovy.groovuinoml.dsl
 
 import io.github.mosser.arduinoml.kernel.behavioral.Action
 import io.github.mosser.arduinoml.kernel.behavioral.State
-import io.github.mosser.arduinoml.kernel.structural.Actuator
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor
 import io.github.mosser.arduinoml.kernel.structural.signals.DIGITAL_SIGNAL
 
@@ -32,7 +32,7 @@ abstract class GroovuinoMLBasescript extends Script {
 		closure = { actuator -> 
 			[becomes: { signal ->
 				Action action = new Action()
-				action.setActuator(actuator instanceof String ? (Actuator)((GroovuinoMLBinding)this.getBinding()).getVariable(actuator) : (Actuator)actuator)
+				action.setActuator(actuator instanceof String ? (DigitalActuator)((GroovuinoMLBinding)this.getBinding()).getVariable(actuator) : (DigitalActuator)actuator)
 				action.setValue(signal instanceof String ? (DIGITAL_SIGNAL)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DIGITAL_SIGNAL)signal)
 				actions.add(action)
 				[and: closure]

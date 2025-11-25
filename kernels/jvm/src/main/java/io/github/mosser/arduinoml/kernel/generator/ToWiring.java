@@ -3,6 +3,9 @@ package io.github.mosser.arduinoml.kernel.generator;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
+import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
+import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
 /**
@@ -62,7 +65,7 @@ public class ToWiring extends Visitor<StringBuffer> {
 	}
 
 	@Override
-	public void visit(Actuator actuator) {
+	public void visit(DigitalActuator actuator) {
 		if(context.get("pass") == PASS.ONE) {
 			return;
 		}
@@ -75,15 +78,16 @@ public class ToWiring extends Visitor<StringBuffer> {
 
 	@Override
 	public void visit(DigitalSensor sensor) {
-		if(context.get("pass") == PASS.ONE) {
-			w(String.format("\nboolean %sBounceGuard = false;\n", sensor.getName()));
-			w(String.format("long %sLastDebounceTime = 0;\n", sensor.getName()));
-			return;
-		}
-		if(context.get("pass") == PASS.TWO) {
-			w(String.format("  pinMode(%d, INPUT);  // %s [Sensor]\n", sensor.getPin(), sensor.getName()));
-			return;
-		}
+//        TODO: replace this code. it was meant for the "Sensor" class
+//		if(context.get("pass") == PASS.ONE) {
+//			w(String.format("\nboolean %sBounceGuard = false;\n", sensor.getName()));
+//			w(String.format("long %sLastDebounceTime = 0;\n", sensor.getName()));
+//			return;
+//		}
+//		if(context.get("pass") == PASS.TWO) {
+//			w(String.format("  pinMode(%d, INPUT);  // %s [Sensor]\n", sensor.getPin(), sensor.getName()));
+//			return;
+//		}
 	}
 
 	@Override
@@ -150,4 +154,13 @@ public class ToWiring extends Visitor<StringBuffer> {
 		}
 	}
 
+    @Override
+    public void visit(AnalogActuator actuator) {
+        //TODO
+    }
+
+    @Override
+    public void visit(AnalogSensor sensor) {
+        //TODO
+    }
 }

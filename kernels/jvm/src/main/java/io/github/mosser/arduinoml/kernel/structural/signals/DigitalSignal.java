@@ -1,4 +1,5 @@
 package io.github.mosser.arduinoml.kernel.structural.signals;
 
-public abstract class AnalogSignal implements Signal {
+public interface DigitalSignal implements Signal {
+
 }

@@ -9,16 +9,33 @@ root            :   declaration bricks states EOF;
 
 declaration     :   'application' name=IDENTIFIER;
 
-bricks          :   (sensor|actuator)+;
-    sensor      :   'sensor'   location ;
-    actuator    :   'actuator' location ;
+bricks          :   (digitalSensor|analogSensor|digitalActuator|analogActuator)+;
+    digitalSensor : sensor  'digital'
+    analogSensor  : sensor  'analogical'
+    digitalActuator  : actuator  'digital'
+    analogActuator   : actuator  'analogical'
+    sensor      :   'sensor'   location
+    actuator    :   'actuator' location
     location    :   id=IDENTIFIER ':' port=PORT_NUMBER;
 
 states          :   state+;
-    state       :   initial? name=IDENTIFIER '{'  action+ transition '}';
+    state       :   initial? name=IDENTIFIER '{'  action+ transition+ '}';
     action      :   receiver=IDENTIFIER '<=' value=SIGNAL;
-    transition  :   trigger=IDENTIFIER 'is' value=SIGNAL '=>' next=IDENTIFIER ;
-    initial     :   '->';
+    transition  :   'if(' expression ')' '=>' next=IDENTIFIER ;
+    initial     :   'INIT';
+
+expression : (notExpression|digitEqualOperation|digitalBinaryOperation|analogBinaryOperation);
+    notExpression : 'not' expression;
+    digitEqualOperation : DIGITAL_SIGNAL '==' DIGITAL_SIGNAL
+    digitalBinaryOperation : (andOp|orOp|xorOp);
+    andOp : expression 'and'  expression;
+    orOp  : expression  'or'  expression;
+    xorOp : expression  'xor' expression;
+    analogBinaryOperation : (biggerOp|biggerOrEqualOp|EqualOp);
+    biggerOp : ANALOG_SIGNAL '>' ANALOG_SIGNAL;
+    biggerOrEqual : ANALOG_SIGNAL '>=' ANALOG_SIGNAL;
+    equalOp : ANALOG_SIGNAL '==' ANALOG_SIGNAL;
+
 
 /*****************
  ** Lexer rules **
@@ -26,7 +43,13 @@ states          :   state+;
 
 PORT_NUMBER     :   [1-9] | '11' | '12';
 IDENTIFIER      :   LOWERCASE (LOWERCASE|UPPERCASE)+;
-SIGNAL          :   'HIGH' | 'LOW';
+SIGNAL          :   ANALOG_SIGNAL | DIGITAL_SIGNAL ;
+ANALOG_SIGNAL   :   ANALOG_SIGNAL_CONST | ANALOG_SIGNAL_READ ;
+ANALOG_SIGNAL_CONST : [0-255] ;
+ANALOG_SIGNAL_READ : analog_sensor=IDENTIFIER
+DIGITAL_SIGNAL      :  DIGITAL_SIGNAL_CONST  | DIGITAL_SIGNAL_READ ;
+DIGITAL_SIGNAL_READ : digital_sensor=IDENTIFIER
+DIGITAL_SIGNAL_CONST : 'HIGH' | 'LOW' ;
 
 /*************
  ** Helpers **

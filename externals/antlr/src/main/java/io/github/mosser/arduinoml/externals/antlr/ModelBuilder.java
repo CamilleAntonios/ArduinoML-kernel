@@ -5,11 +5,13 @@ import io.github.mosser.arduinoml.externals.antlr.grammar.*;
 
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
-import io.github.mosser.arduinoml.kernel.behavioral.SignalTransition;
+import io.github.mosser.arduinoml.kernel.behavioral.BasicTransition;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,9 +60,9 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
         bindings.forEach((key, binding) ->  {
-            SignalTransition t = new SignalTransition();
-            t.setSensor(binding.trigger);
-            t.setValue(binding.value);
+            BasicTransition t = new BasicTransition();
+            DigitalSignalTransfer triggerValue = new DigitalSignalTransfer(binding.trigger);
+            t.setCondition(new DigitalEqualOperation(triggerValue, binding.value));
             t.setNext(states.get(binding.to));
             states.get(key).setTransition(t);
         });

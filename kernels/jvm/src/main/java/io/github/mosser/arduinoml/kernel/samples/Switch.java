@@ -2,6 +2,7 @@ package io.github.mosser.arduinoml.kernel.samples;
 
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
+import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
@@ -55,8 +56,8 @@ public class Switch {
 		off2on.setValue(DigitalSignalConstant.HIGH);
 
 		// Binding transitions to states
-		on.setTransition(on2off);
-		off.setTransition(off2on);
+		on.addTransition(on2off);
+		off.addTransition(off2on);
 
 		// Building the App
 		App theSwitch = new App();

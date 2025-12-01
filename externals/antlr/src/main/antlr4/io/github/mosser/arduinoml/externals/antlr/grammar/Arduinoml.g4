@@ -21,7 +21,7 @@ states          :   state+;
     action      :   (digitalAction|analogicalAction) ;
     digitalAction      :   receiver=IDENTIFIER '<=' value=digitalSignal ;
     analogicalAction   :   receiver=IDENTIFIER '<=' value=analogSignal  ;
-    transition  :   'if(' expression ')' '=>' next=IDENTIFIER ;
+    transition  :   'if' '(' expression ')' '=>' next=IDENTIFIER ;
     initial     :   'INIT';
 
 expression : orExpr ;
@@ -53,7 +53,11 @@ analogSignalRead : analog_sensor=IDENTIFIER ;
 PORT_NUMBER     :   [1-9] | '11' | '12' ;
 IDENTIFIER      :   LOWERCASE (LOWERCASE|UPPERCASE)+ ;
 DIGITAL_SIGNAL_CONST : 'HIGH' | 'LOW' ;
-ANALOG_SIGNAL_CONST : [0-255] ;
+ANALOG_SIGNAL_CONST : '0'
+                    | [1-9] [0-9]?
+                    | '1' [0-9] [0-9]
+                    | '2' [0-4] [0-9]
+                    |  '25' [0-5];
 
 /*************
  ** Helpers **

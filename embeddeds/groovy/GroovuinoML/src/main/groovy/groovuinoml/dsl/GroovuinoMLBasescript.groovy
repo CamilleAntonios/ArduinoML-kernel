@@ -2,15 +2,33 @@ package main.groovy.groovuinoml.dsl
 
 
 import io.github.mosser.arduinoml.kernel.behavioral.Action
+import io.github.mosser.arduinoml.kernel.behavioral.DigitalAction
 import io.github.mosser.arduinoml.kernel.behavioral.State
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator
+import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation
+import io.github.mosser.arduinoml.kernel.structural.expressions.Expression
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerOrEqualAnalogOperation
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.EqualAnalogOperation
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor
+import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignal
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant
+import main.groovy.groovuinoml.dsl.GroovuinoMLBinding
 
 abstract class GroovuinoMLBasescript extends Script {
 //	public static Number getDuration(Number number, TimeUnit unit) throws IOException {
 //		return number * unit.inMillis;
 //	}
+
+	GroovuinoMLBasescript() {
+		Expression.metaClass.and = { other -> new AndOperation(delegate, other) }
+		Expression.metaClass.or = { other -> new OrOperation(delegate, other) }
+		Expression.metaClass.greaterThan = { rhs -> new BiggerAnalogOperation(delegate, rhs) }
+		Expression.metaClass.greaterOrEqual = { rhs -> new BiggerOrEqualAnalogOperation(delegate, rhs) }
+		Expression.metaClass.equalTo = { rhs -> new EqualAnalogOperation(delegate, rhs) }
+	}
 
 	// sensor "name" pin n
 	def sensor(String name) {
@@ -31,7 +49,7 @@ abstract class GroovuinoMLBasescript extends Script {
 		def closure
 		closure = { actuator -> 
 			[becomes: { signal ->
-				Action action = new Action()
+				Action action = new DigitalAction()
 				action.setActuator(actuator instanceof String ? (DigitalActuator)((GroovuinoMLBinding)this.getBinding()).getVariable(actuator) : (DigitalActuator)actuator)
 				action.setValue(signal instanceof String ? (DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DigitalSignalConstant)signal)
 				actions.add(action)
@@ -40,7 +58,6 @@ abstract class GroovuinoMLBasescript extends Script {
 		}
 		[means: closure]
 	}
-	
 	// initial state
 	def initial(state) {
 		((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().setInitialState(state instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state) : (State)state)
@@ -48,7 +65,16 @@ abstract class GroovuinoMLBasescript extends Script {
 	
 	// from state1 to state2 when sensor becomes signal
 	def from(state1) {
-		[to: { state2 -> 
+		[to: { state2 ->
+			/*[when: { expr ->
+				((GroovuinoMLBinding)this.getBinding())
+						.getGroovuinoMLModel()
+						.createTransition(
+								state1 instanceof String ? ... : state1,
+								state2 instanceof String ? ... : state2,
+								expr
+						)
+			}]*/
 			[when: { sensor ->
 				[becomes: { signal -> 
 					((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
@@ -66,7 +92,13 @@ abstract class GroovuinoMLBasescript extends Script {
 			}]
 		}]
 	}
-	
+
+	// not(expr)
+	def not(expr) {
+		new NotOperation(expr)
+	}
+
+
 	// export name
 	def export(String name) {
 		println(((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().generateCode(name).toString())

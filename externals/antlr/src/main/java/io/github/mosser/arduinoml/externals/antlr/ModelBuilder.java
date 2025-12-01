@@ -3,6 +3,7 @@ package io.github.mosser.arduinoml.externals.antlr;
 import io.github.mosser.arduinoml.externals.antlr.grammar.*;
 
 
+import io.github.mosser.arduinoml.externals.antlr.grammar.ArduinomlParser;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
@@ -40,8 +41,10 @@ public class ModelBuilder extends ArduinomlBaseListener {
      ** Symbol tables **
      *******************/
 
-    private Map<String, DigitalSensor>   sensors   = new HashMap<>();
-    private Map<String, DigitalActuator> actuators = new HashMap<>();
+    private Map<String, DigitalSensor>   digitalSensors   = new HashMap<>();
+    private Map<String, AnalogSensor>   analogSensors   = new HashMap<>();
+    private Map<String, DigitalActuator> digitalActuators = new HashMap<>();
+    private Map<String, AnalogActuator> analogActuators = new HashMap<>();
     private Map<String, State>    states  = new HashMap<>();
     private Map<String, List<Binding>>  bindings  = new HashMap<>();
 
@@ -68,11 +71,11 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
         bindings.forEach((key, binding) ->  {
-            BasicTransition t = new BasicTransition();
+            /*BasicTransition t = new BasicTransition();
             DigitalSignalTransfer triggerValue = new DigitalSignalTransfer(binding.trigger);
             t.setCondition(new DigitalEqualOperation(triggerValue, binding.value));
             t.setNext(states.get(binding.to));
-            states.get(key).setTransition(t);
+            states.get(key).setTransition(t);*/
         });
         this.built = true;
     }
@@ -88,7 +91,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
         sensor.setName(ctx.sensor().location().id.getText());
         sensor.setPin(Integer.parseInt(ctx.sensor().location().port.getText()));
         this.theApp.getBricks().add(sensor);
-        sensors.put(sensor.getName(), sensor); //TODO : changer ça ? car tous les sensors sont stockés de la même manière
+        digitalSensors.put(sensor.getName(), sensor); //TODO : changer ça ? car tous les sensors sont stockés de la même manière
     }
 
     @Override
@@ -97,7 +100,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
         actuator.setName(ctx.actuator().location().id.getText());
         actuator.setPin(Integer.parseInt(ctx.actuator().location().port.getText()));
         this.theApp.getBricks().add(actuator);
-        actuators.put(actuator.getName(), actuator);//TODO : changer ça ? car tous les actuators sont stockés de la même manière
+        digitalActuators.put(actuator.getName(), actuator);//TODO : changer ça ? car tous les actuators sont stockés de la même manière
     }
 
     @Override
@@ -106,7 +109,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
         sensor.setName(ctx.sensor().location().id.getText());
         sensor.setPin(Integer.parseInt(ctx.sensor().location().port.getText()));
         this.theApp.getBricks().add(sensor);
-        sensors.put(sensor.getName(), sensor); //TODO : changer ça ? car tous les sensors sont stockés de la même manière
+        analogSensors.put(sensor.getName(), sensor); //TODO : changer ça ? car tous les sensors sont stockés de la même manière
     }
 
     @Override
@@ -115,7 +118,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
         actuator.setName(ctx.actuator().location().id.getText());
         actuator.setPin(Integer.parseInt(ctx.actuator().location().port.getText()));
         this.theApp.getBricks().add(actuator);
-        actuators.put(actuator.getName(), actuator);//TODO : changer ça ? car tous les actuators sont stockés de la même manière
+        analogActuators.put(actuator.getName(), actuator);//TODO : changer ça ? car tous les actuators sont stockés de la même manière
     }
 
     @Override
@@ -135,26 +138,31 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override
     public void enterDigitalAction(ArduinomlParser.DigitalActionContext ctx) {
         DigitalAction action = new DigitalAction();
-        action.setActuator(actuators.get(ctx.receiver.getText()));
+        action.setActuator(digitalActuators.get(ctx.receiver.getText()));
         //action.setValue(DigitalSignalConstant.valueOf(ctx.value.getText()));
         this.currentDigitalAction = action;
     }
 
     @Override
     public void enterDigitalSignal(ArduinomlParser.DigitalSignalContext ctx) {
-        String textValue=ctx.DIGITAL_SIGNAL_CONST().getSymbol().getText();
-        if (textValue.equalsIgnoreCase("HIGH") || textValue.equalsIgnoreCase("LOW")) {
-            if (this.currentDigitalAction != null) {
-                this.currentDigitalAction.setValue(DigitalSignalConstant.valueOf(textValue.toUpperCase()));
+        try {
+            String textValue=ctx.DIGITAL_SIGNAL_CONST().getSymbol().getText();
+            if (textValue.equalsIgnoreCase("HIGH") || textValue.equalsIgnoreCase("LOW")) {
+                if (this.currentDigitalAction != null) {
+                    this.currentDigitalAction.setValue(DigitalSignalConstant.valueOf(textValue.toUpperCase()));
+                }
+                //TODO : faire le cas où on est dans une expression
             }
-            //TODO : faire le cas où on est dans une expression
+        }
+        catch(Exception e) {
+            //ne rien faire si ce n'est pas un digital signal constant
         }
     }
 
     @Override
     public void enterDigitalSignalRead(ArduinomlParser.DigitalSignalReadContext ctx) {
         if (this.currentDigitalAction != null) {
-            DigitalSignalTransfer signalRead = new DigitalSignalTransfer(sensors.get(ctx.digital_sensor.getText()));
+            DigitalSignalTransfer signalRead = new DigitalSignalTransfer(digitalSensors.get(ctx.digital_sensor.getText()));
             this.currentDigitalAction.setValue(signalRead);
         }
         //TODO : faire le cas où on est dans une expression
@@ -167,24 +175,24 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
-    public void enterAnalogAction(ArduinomlParser.AnalogActionContext ctx) {
+    public void enterAnalogicalAction(ArduinomlParser.AnalogicalActionContext ctx) {
         AnalogAction action = new AnalogAction();
-        action.setActuator(actuators.get(ctx.receiver.getText()));
+        action.setActuator(analogActuators.get(ctx.receiver.getText()));
         //action.setValue(DigitalSignalConstant.valueOf(ctx.value.getText()));
         this.currentAnalogAction = action;
     }
 
     @Override
     public void enterAnalogSignal(ArduinomlParser.AnalogSignalContext ctx) {
-        String textValue=ctx.ANALOG_SIGNAL_CONST().getSymbol().getText();
         try {
-            Integer parsedConst = Integer.parseInt(textValue);
+            String textValue=ctx.ANALOG_SIGNAL_CONST().getSymbol().getText();
+            int parsedConst = Integer.parseInt(textValue);
             if (this.currentAnalogAction != null) {
                 this.currentAnalogAction.setValue(new AnalogSignalConstant(parsedConst));
             }
             //todo: faire le cas où on est dans une expr
         }
-        catch (NumberFormatException e) {
+        catch (Exception e) {
             //do nothing. If the number can't be parsedn it will be treated as an AnalogSignalRead
         }
     }
@@ -192,14 +200,14 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override
     public void enterAnalogSignalRead(ArduinomlParser.AnalogSignalReadContext ctx) {
         if (this.currentAnalogAction != null) {
-            AnalogSignalTransfer signalRead = new AnalogSignalTransfer(sensors.get(ctx.analog_sensor.getText()));
+            AnalogSignalTransfer signalRead = new AnalogSignalTransfer(analogSensors.get(ctx.analog_sensor.getText()));
             this.currentAnalogAction.setValue(signalRead);
         }
         //TODO : faire le cas où on est dans une expression
     }
 
     @Override
-    public void exitAnalogAction(ArduinomlParser.AnalogActionContext ctx) {
+    public void exitAnalogicalAction(ArduinomlParser.AnalogicalActionContext ctx) {
         currentState.getActions().add(this.currentAnalogAction);
         this.currentAnalogAction = null;
     }

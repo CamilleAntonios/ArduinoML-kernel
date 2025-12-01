@@ -95,9 +95,9 @@ public class BasicTransitionTest {
         alert_to_idle.setNext(idle);
         alert_to_idle.setCondition(exprXor);
 
-        idle.setTransition(idle_to_checking);
-        checking.setTransition(checking_to_alert);
-        alert.setTransition(alert_to_idle);
+        idle.addTransition(idle_to_checking);
+        checking.addTransition(checking_to_alert);
+        alert.addTransition(alert_to_idle);
 
 
         /***************************************************

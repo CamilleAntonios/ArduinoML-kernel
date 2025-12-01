@@ -6,3 +6,4 @@ embeddeds/haskell/dist
 .idea/
 node_modules/
 .gradle/
+/out

@@ -10,18 +10,16 @@ import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.Expression;
+import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.*;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.XorOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
-import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalConstant;
-import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalTransfer;
-import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
+import io.github.mosser.arduinoml.kernel.structural.signals.*;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
-import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ModelBuilder extends ArduinomlBaseListener {
 
@@ -54,9 +52,16 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     private State currentState = null;
-    private DigitalAction currentDigitalAction = null;
-    private AnalogAction  currentAnalogAction = null;
+
+    //only one of those two is available at once
+    private Optional<DigitalAction> currentDigitalAction = Optional.empty();
+    private Optional<AnalogAction>  currentAnalogAction = Optional.empty();
+
     private Binding currentTransitionBinding = null;
+
+    private Stack<Expression> expressionStack = new Stack<>();
+    private Stack<DigitalSignal> digitalSignalsStack = new Stack<>();
+    private Stack<AnalogSignal> analogSignalsStack = new Stack<>();
 
     /**************************
      ** Listening mechanisms **
@@ -70,12 +75,13 @@ public class ModelBuilder extends ArduinomlBaseListener {
 
     @Override public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
-        bindings.forEach((key, binding) ->  {
-            /*BasicTransition t = new BasicTransition();
-            DigitalSignalTransfer triggerValue = new DigitalSignalTransfer(binding.trigger);
-            t.setCondition(new DigitalEqualOperation(triggerValue, binding.value));
-            t.setNext(states.get(binding.to));
-            states.get(key).setTransition(t);*/
+        bindings.forEach((key, bindings) ->  {
+            for(Binding binding : bindings) {
+                BasicTransition t = new BasicTransition();
+                t.setCondition(binding.expression);
+                t.setNext(states.get(binding.to));
+                states.get(key).addTransition(t);
+            }
         });
         this.built = true;
     }
@@ -136,11 +142,20 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
-    public void enterDigitalAction(ArduinomlParser.DigitalActionContext ctx) {
-        DigitalAction action = new DigitalAction();
-        action.setActuator(digitalActuators.get(ctx.receiver.getText()));
-        //action.setValue(DigitalSignalConstant.valueOf(ctx.value.getText()));
-        this.currentDigitalAction = action;
+    public void enterAction(ArduinomlParser.ActionContext ctx) {
+        String receiverName =  ctx.receiver.getText();
+        if(digitalActuators.containsKey(receiverName)) {
+            //we can consider the action is a DigitalAction
+            DigitalAction action = new DigitalAction();
+            action.setActuator(digitalActuators.get(receiverName));
+            this.currentDigitalAction = Optional.of(action);
+        }
+        else {
+            //we will consider the action is an AnalogicAction
+            AnalogAction action = new AnalogAction();
+            action.setActuator(analogActuators.get(receiverName));
+            this.currentAnalogAction = Optional.of(action);
+        }
     }
 
     @Override
@@ -148,10 +163,13 @@ public class ModelBuilder extends ArduinomlBaseListener {
         try {
             String textValue=ctx.DIGITAL_SIGNAL_CONST().getSymbol().getText();
             if (textValue.equalsIgnoreCase("HIGH") || textValue.equalsIgnoreCase("LOW")) {
-                if (this.currentDigitalAction != null) {
-                    this.currentDigitalAction.setValue(DigitalSignalConstant.valueOf(textValue.toUpperCase()));
+                DigitalSignalConstant value = DigitalSignalConstant.valueOf(textValue.toUpperCase());
+                if (this.currentDigitalAction.isPresent()) {
+                    this.currentDigitalAction.get().setValue(value);
                 }
-                //TODO : faire le cas où on est dans une expression
+                else {//le cas où on est dans une expression
+                    digitalSignalsStack.add(value);
+                }
             }
         }
         catch(Exception e) {
@@ -160,26 +178,34 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
-    public void enterDigitalSignalRead(ArduinomlParser.DigitalSignalReadContext ctx) {
-        if (this.currentDigitalAction != null) {
-            DigitalSignalTransfer signalRead = new DigitalSignalTransfer(digitalSensors.get(ctx.digital_sensor.getText()));
-            this.currentDigitalAction.setValue(signalRead);
+    public void exitSignalRead(ArduinomlParser.SignalReadContext ctx) {
+        String sensorName = ctx.sensor_name.getText();
+        if(digitalSensors.containsKey(sensorName)) {
+            DigitalSignalTransfer signalRead = new DigitalSignalTransfer(digitalSensors.get(sensorName));
+            if (this.currentDigitalAction.isPresent()) {
+                this.currentDigitalAction.get().setValue(signalRead);
+            }
+            else {//le cas où on est dans une expression
+                digitalSignalsStack.add(signalRead);
+            }
         }
-        //TODO : faire le cas où on est dans une expression
+        else {//il faut que ce soit un analog read
+            AnalogSignalTransfer signalRead = new AnalogSignalTransfer(analogSensors.get(sensorName));
+            if (this.currentAnalogAction.isPresent()) {
+                this.currentAnalogAction.get().setValue(signalRead);
+            }
+            else {//le cas où on est dans une expression
+                analogSignalsStack.add(signalRead);
+            }
+        }
     }
 
     @Override
-    public void exitDigitalAction(ArduinomlParser.DigitalActionContext ctx) {
-        currentState.getActions().add(this.currentDigitalAction);
-        this.currentDigitalAction = null;
-    }
-
-    @Override
-    public void enterAnalogicalAction(ArduinomlParser.AnalogicalActionContext ctx) {
-        AnalogAction action = new AnalogAction();
-        action.setActuator(analogActuators.get(ctx.receiver.getText()));
-        //action.setValue(DigitalSignalConstant.valueOf(ctx.value.getText()));
-        this.currentAnalogAction = action;
+    public void exitAction(ArduinomlParser.ActionContext ctx) {
+        currentState.getActions().add
+                (this.currentDigitalAction.isPresent() ? this.currentDigitalAction.get() : this.currentAnalogAction.get());
+        this.currentDigitalAction = Optional.empty();
+        this.currentAnalogAction = Optional.empty();
     }
 
     @Override
@@ -187,29 +213,17 @@ public class ModelBuilder extends ArduinomlBaseListener {
         try {
             String textValue=ctx.ANALOG_SIGNAL_CONST().getSymbol().getText();
             int parsedConst = Integer.parseInt(textValue);
-            if (this.currentAnalogAction != null) {
-                this.currentAnalogAction.setValue(new AnalogSignalConstant(parsedConst));
+            AnalogSignal constantSignal = new AnalogSignalConstant(parsedConst);
+            if (this.currentAnalogAction.isPresent()) {
+                this.currentAnalogAction.get().setValue(constantSignal);
             }
-            //todo: faire le cas où on est dans une expr
+            else {//le cas où on est dans une expr
+                analogSignalsStack.add(constantSignal);
+            }
         }
         catch (Exception e) {
-            //do nothing. If the number can't be parsedn it will be treated as an AnalogSignalRead
+            //do nothing. If the number can't be parsed it will be treated as an AnalogSignalRead
         }
-    }
-
-    @Override
-    public void enterAnalogSignalRead(ArduinomlParser.AnalogSignalReadContext ctx) {
-        if (this.currentAnalogAction != null) {
-            AnalogSignalTransfer signalRead = new AnalogSignalTransfer(analogSensors.get(ctx.analog_sensor.getText()));
-            this.currentAnalogAction.setValue(signalRead);
-        }
-        //TODO : faire le cas où on est dans une expression
-    }
-
-    @Override
-    public void exitAnalogicalAction(ArduinomlParser.AnalogicalActionContext ctx) {
-        currentState.getActions().add(this.currentAnalogAction);
-        this.currentAnalogAction = null;
     }
 
     @Override
@@ -222,6 +236,8 @@ public class ModelBuilder extends ArduinomlBaseListener {
 
     @Override
     public void exitTransition(ArduinomlParser.TransitionContext ctx) {
+        this.currentTransitionBinding.expression = expressionStack.pop();
+
         if (!bindings.containsKey(this.currentState.getName())) {
             List<Binding> newlyCreatedList = new ArrayList<>();
             newlyCreatedList.add(this.currentTransitionBinding);
@@ -231,6 +247,70 @@ public class ModelBuilder extends ArduinomlBaseListener {
             bindings.get(this.currentState.getName()).add(this.currentTransitionBinding);
         }
         this.currentTransitionBinding = null;
+    }
+
+    @Override
+    public void exitExpr(ArduinomlParser.ExprContext ctx) {
+        if(ctx.getChild(0).getText().equalsIgnoreCase("not")) {
+            //le seul cas où l'opérateur est présent à l'index 0. Dans tous les autres cas, il l'est à l'index 1
+            expressionStack.push(new NotOperation(expressionStack.pop()));
+        }
+        else if(ctx.getChild(0).getText().equalsIgnoreCase("(")) {
+            //si l'expression contient une parenthèse, alors la réelle condition à l'intérieure serait traitée plus tard
+            //car on a la règle de grammaire expr : '(' expr ')' ;
+            return;
+        }
+        else if (ctx.children.size() > 1){//vérification pour ne jamais rencontrer d'exceptions
+            Expression left, right;
+            switch (ctx.getChild(1).getText().toLowerCase()) {
+                case "and":
+                    right=expressionStack.pop();
+                    left=expressionStack.pop();
+                    expressionStack.push(new AndOperation(left, right));
+                    break;
+                case "or":
+                    right=expressionStack.pop();
+                    left=expressionStack.pop();
+                    expressionStack.push(new OrOperation(left, right));
+                    break;
+                case "xor":
+                    right=expressionStack.pop();
+                    left=expressionStack.pop();
+                    expressionStack.push(new XorOperation(left, right));
+                    break;
+            }
+            //no default case : if it did not match a case, it is a analog comp or digital equal and is treated
+        }
+    }
+
+    @Override
+    public void exitDigitalEqualComp(ArduinomlParser.DigitalEqualCompContext ctx) {
+        DigitalSignal right = digitalSignalsStack.pop();
+        DigitalSignal left = digitalSignalsStack.pop();
+        expressionStack.push(new DigitalEqualOperation(left, right));//values will be set on exit
+    }
+
+    @Override
+    public void exitAnalogComp(ArduinomlParser.AnalogCompContext ctx) {
+        AnalogSignal right = analogSignalsStack.pop();
+        AnalogSignal left = analogSignalsStack.pop();
+        switch(ctx.getChild(1).getText()) {
+            case "<":
+                expressionStack.push(new LessAnalogOperation(left, right));//values will be set on exit
+                break;
+            case "<=":
+                expressionStack.push(new LessOrEqualAnalogOperation(left, right));//values will be set on exit
+                break;
+            case ">":
+                expressionStack.push(new BiggerAnalogOperation(left, right));//values will be set on exit
+                break;
+            case ">=":
+                expressionStack.push(new BiggerOrEqualAnalogOperation(left, right));//values will be set on exit
+                break;
+            default://cas "=="
+                expressionStack.push(new EqualAnalogOperation(left, right));//values will be set on exit
+                break;
+        }
     }
 
     @Override

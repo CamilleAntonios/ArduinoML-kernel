@@ -18,20 +18,20 @@ bricks          :   (digitalSensor|analogSensor|digitalActuator|analogActuator)+
 
 states          :   state+;
     state       :   initial? name=IDENTIFIER '{'  action+ transition+ '}';
-    action      :   (digitalAction|analogicalAction) ;
-    digitalAction      :   receiver=IDENTIFIER '<=' value=digitalSignal ;
-    analogicalAction   :   receiver=IDENTIFIER '<=' value=analogSignal  ;
-    transition  :   'if' '(' expression ')' '=>' next=IDENTIFIER ;
+    action      :   receiver=IDENTIFIER '<=' value=signal ;
+    transition  :   ('if' '(' expr ')' '=>' next=IDENTIFIER ) | ('if' expr '=>' next=IDENTIFIER ) ;
     initial     :   'INIT';
 
-expression : orExpr ;
-    orExpr : xorExpr ('or' xorExpr)* ;
-    xorExpr : andExpr ('xor' andExpr)* ;
-    andExpr : unaryExpr ('and' unaryExpr)* ;
-    unaryExpr : 'not' unaryExpr | digitalEqualComp | analogComp | '(' expression ')' ;
+expr :  'not' '(' expr ')' |
+        'not' expr |
+        left=expr 'or' right=expr |
+        left=expr 'xor' right=expr |
+        left=expr 'and' right=expr |
+        digitalEqualComp |
+        analogComp |
+        '(' expr ')' ;
 
 digitalEqualComp : digitalSignal '==' digitalSignal ;
-
 analogComp : analogSignal '>' analogSignal |
             analogSignal '>=' analogSignal |
             analogSignal '<' analogSignal |
@@ -39,12 +39,11 @@ analogComp : analogSignal '>' analogSignal |
             analogSignal '>=' analogSignal ;
 
 
-digitalSignal      :  DIGITAL_SIGNAL_CONST  | digitalSignalRead ;
-digitalSignalRead : digital_sensor=IDENTIFIER ;
+signal : digitalSignal | analogSignal ;
+digitalSignal      :  DIGITAL_SIGNAL_CONST  | signalRead ;
+analogSignal   :   ANALOG_SIGNAL_CONST | signalRead ;
 
-
-analogSignal   :   ANALOG_SIGNAL_CONST | analogSignalRead ;
-analogSignalRead : analog_sensor=IDENTIFIER ;
+signalRead : sensor_name=IDENTIFIER ;
 
 /*****************
  ** Lexer rules **

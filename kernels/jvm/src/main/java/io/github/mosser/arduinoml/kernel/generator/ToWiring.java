@@ -7,9 +7,7 @@ import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation;
-import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation;
-import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerOrEqualAnalogOperation;
-import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.EqualAnalogOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.*;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.XorOperation;
@@ -245,5 +243,17 @@ public class ToWiring extends Visitor<StringBuffer> {
     public void visit(BiggerOrEqualAnalogOperation biggerOrEqAnalogOp) {
         //produit (EXPR_GAUCHE >= EXPR_DROITE)
         w("(" + biggerOrEqAnalogOp.getLeft() + " >= " + biggerOrEqAnalogOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(LessAnalogOperation lessAnalogOp) {
+        //produit (EXPR_GAUCHE < EXPR_DROITE)
+        w("(" + lessAnalogOp.getLeft() + " < " + lessAnalogOp.getRight() + ")");
+    }
+
+    @Override
+    public void visit(LessOrEqualAnalogOperation lessOrEqAnalogOp) {
+        //produit (EXPR_GAUCHE <= EXPR_DROITE)
+        w("(" + lessOrEqAnalogOp.getLeft() + " <= " + lessOrEqAnalogOp.getRight() + ")");
     }
 }

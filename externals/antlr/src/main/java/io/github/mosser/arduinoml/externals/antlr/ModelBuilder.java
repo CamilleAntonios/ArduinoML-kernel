@@ -287,7 +287,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     public void exitDigitalEqualComp(ArduinomlParser.DigitalEqualCompContext ctx) {
         DigitalSignal right = digitalSignalsStack.pop();
         DigitalSignal left = digitalSignalsStack.pop();
-        expressionStack.push(new DigitalEqualOperation(left, right));//values will be set on exit
+        expressionStack.push(new DigitalEqualOperation(left, right));
     }
 
     @Override
@@ -296,19 +296,19 @@ public class ModelBuilder extends ArduinomlBaseListener {
         AnalogSignal left = analogSignalsStack.pop();
         switch(ctx.getChild(1).getText()) {
             case "<":
-                expressionStack.push(new LessAnalogOperation(left, right));//values will be set on exit
+                expressionStack.push(new LessAnalogOperation(left, right));
                 break;
             case "<=":
-                expressionStack.push(new LessOrEqualAnalogOperation(left, right));//values will be set on exit
+                expressionStack.push(new LessOrEqualAnalogOperation(left, right));
                 break;
             case ">":
-                expressionStack.push(new BiggerAnalogOperation(left, right));//values will be set on exit
+                expressionStack.push(new BiggerAnalogOperation(left, right));
                 break;
             case ">=":
-                expressionStack.push(new BiggerOrEqualAnalogOperation(left, right));//values will be set on exit
+                expressionStack.push(new BiggerOrEqualAnalogOperation(left, right));
                 break;
             default://cas "=="
-                expressionStack.push(new EqualAnalogOperation(left, right));//values will be set on exit
+                expressionStack.push(new EqualAnalogOperation(left, right));
                 break;
         }
     }

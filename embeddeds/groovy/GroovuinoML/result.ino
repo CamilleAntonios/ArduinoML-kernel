@@ -1,44 +1,35 @@
 // Wiring code generated from an ArduinoML model
-// Application name: MultiTransitions
+// Application name: DualCheckAlarm
 
 long debounce = 200;
 
-enum STATE {on, off, blink};
-STATE currentState = off;
+enum STATE {alarm, idle};
+STATE currentState = idle;
 
-boolean button1BounceGuard = false;
-long button1LastDebounceTime = 0;
+boolean b1BounceGuard = false;
+long b1LastDebounceTime = 0;
 
-boolean button2BounceGuard = false;
-long button2LastDebounceTime = 0;
+boolean b2BounceGuard = false;
+long b2LastDebounceTime = 0;
 
 void setup(){
-  pinMode(9, INPUT);  // button1 [Digital Sensor]
-  pinMode(10, INPUT);  // button2 [Digital Sensor]
-  pinMode(12, OUTPUT); // led [Digital Actuator]
+  pinMode(9, INPUT);  // b1 [Digital Sensor]
+  pinMode(10, INPUT);  // b2 [Digital Sensor]
+  pinMode(11, OUTPUT); // buzzer [Digital Actuator]
 }
 
 void loop() {
 	switch(currentState){
-		case on:
-			digitalWrite(12,HIGH);
-			if ((digitalRead(9) == HIGH)) {
-				currentState = off;
-			}
-			if ((digitalRead(10) == HIGH)) {
-				currentState = blink;
+		case alarm:
+			digitalWrite(11,HIGH);
+			if (((digitalRead(9) == LOW) || (digitalRead(10) == LOW))) {
+				currentState = idle;
 			}
 		break;
-		case off:
-			digitalWrite(12,LOW);
-			if ((digitalRead(9) == HIGH)) {
-				currentState = on;
-			}
-		break;
-		case blink:
-			digitalWrite(12,HIGH);
-			if ((digitalRead(10) == HIGH)) {
-				currentState = off;
+		case idle:
+			digitalWrite(11,LOW);
+			if (((digitalRead(9) == HIGH) && (digitalRead(10) == HIGH))) {
+				currentState = alarm;
 			}
 		break;
 	}

@@ -29,6 +29,11 @@ abstract class GroovuinoMLBasescript extends Script {
 		Expression.metaClass.greaterThan = { rhs -> new BiggerAnalogOperation(delegate, rhs) }
 		Expression.metaClass.greaterOrEqual = { rhs -> new BiggerOrEqualAnalogOperation(delegate, rhs) }
 		Expression.metaClass.equalTo = { rhs -> new EqualAnalogOperation(delegate, rhs) }
+
+		DigitalSensor.metaClass.equalTo = { right ->
+			def leftSignal = new DigitalSignalTransfer(delegate)
+			return new DigitalEqualOperation(leftSignal, right)
+		}
 	}
 
 	// sensor "name" pin n
@@ -67,36 +72,44 @@ abstract class GroovuinoMLBasescript extends Script {
 	// from state1 to state2 when sensor becomes signal
 	def from(state1) {
 		[to: { state2 ->
-			/*[when: { expr ->
-				((GroovuinoMLBinding)this.getBinding())
-						.getGroovuinoMLModel()
-						.createTransition(
-								state1 instanceof String ? ... : state1,
-								state2 instanceof String ? ... : state2,
-								expr
-						)
-			}]*/
-			[when: { sensor ->
-				[becomes: { signal ->
-					def sensorObj = sensor instanceof String ?
-							(DigitalSensor)((GroovuinoMLBinding)this.getBinding()).getVariable(sensor) :
-							(DigitalSensor)sensor
 
-					def signalObj = signal instanceof String ?
-							(DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) :
-							(DigitalSignalConstant)signal
+				[when: { expr ->
 
-					// Build an expression: sensor == signal
-					def leftSignal = new DigitalSignalTransfer(sensorObj)
-					def expr = new DigitalEqualOperation(leftSignal, signalObj)
+					// Si expr EST une Expression, alors c'est du AND/OR/equalTo etc.
+					if (expr instanceof Expression) {
+						def fromState = state1 instanceof String ? binding.getVariable(state1) : state1
+						def toState   = state2 instanceof String ? binding.getVariable(state2) : state2
 
-					((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
-							state1 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state1) : (State)state1,
-							state2 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state2) : (State)state2,
-							expr
-					)
-				}]
-			},
+						((GroovuinoMLBinding) this.getBinding())
+								.getGroovuinoMLModel()
+								.createTransition(fromState, toState, expr)
+
+						return
+					}
+
+					// Sinon, on tombe dans le mode "sensor becomes signal"
+					return [
+							becomes: { signal ->
+								def sensorObj = expr instanceof String ?
+										(DigitalSensor) binding.getVariable(expr) :
+										(DigitalSensor) expr
+
+								def signalObj = signal instanceof String ?
+										(DigitalSignalConstant) binding.getVariable(signal) :
+										(DigitalSignalConstant) signal
+
+								def leftSignal = new DigitalSignalTransfer(sensorObj)
+								def condition = new DigitalEqualOperation(leftSignal, signalObj)
+
+								def fromState = state1 instanceof String ? binding.getVariable(state1) : state1
+								def toState   = state2 instanceof String ? binding.getVariable(state2) : state2
+
+								((GroovuinoMLBinding) this.getBinding())
+										.getGroovuinoMLModel()
+										.createTransition(fromState, toState, condition)
+							}
+					]
+				},
 			after: { delay ->
 				((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
 						state1 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state1) : (State)state1,

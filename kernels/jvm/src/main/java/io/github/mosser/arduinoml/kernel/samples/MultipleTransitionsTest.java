@@ -6,13 +6,13 @@ import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
 import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalTransfer;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
-import io.github.mosser.arduinoml.kernel.structural.expressions.*;
 import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer;
 

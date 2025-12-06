@@ -1,10 +1,11 @@
-package io.github.mosser.arduinoml.kernel.structural.expressions;
+package io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations;
 
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
+import io.github.mosser.arduinoml.kernel.structural.expressions.Expression;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignal;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
-public class DigitalEqualOperation implements Expression{
+public class DigitalEqualOperation implements Expression {
     private DigitalSignal left;
     private DigitalSignal right;
     public DigitalEqualOperation(DigitalSignal left, DigitalSignal right) {

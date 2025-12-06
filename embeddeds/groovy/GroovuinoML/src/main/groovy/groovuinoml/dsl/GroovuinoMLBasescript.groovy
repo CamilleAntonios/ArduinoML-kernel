@@ -5,6 +5,7 @@ import io.github.mosser.arduinoml.kernel.behavioral.Action
 import io.github.mosser.arduinoml.kernel.behavioral.DigitalAction
 import io.github.mosser.arduinoml.kernel.behavioral.State
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator
+import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.Expression
 import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation
@@ -13,8 +14,8 @@ import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoper
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor
-import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignal
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer
 import main.groovy.groovuinoml.dsl.GroovuinoMLBinding
 
 abstract class GroovuinoMLBasescript extends Script {
@@ -76,12 +77,24 @@ abstract class GroovuinoMLBasescript extends Script {
 						)
 			}]*/
 			[when: { sensor ->
-				[becomes: { signal -> 
+				[becomes: { signal ->
+					def sensorObj = sensor instanceof String ?
+							(DigitalSensor)((GroovuinoMLBinding)this.getBinding()).getVariable(sensor) :
+							(DigitalSensor)sensor
+
+					def signalObj = signal instanceof String ?
+							(DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) :
+							(DigitalSignalConstant)signal
+
+					// Build an expression: sensor == signal
+					def leftSignal = new DigitalSignalTransfer(sensorObj)
+					def expr = new DigitalEqualOperation(leftSignal, signalObj)
+
 					((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
-						state1 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state1) : (State)state1, 
-						state2 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state2) : (State)state2, 
-						sensor instanceof String ? (DigitalSensor)((GroovuinoMLBinding)this.getBinding()).getVariable(sensor) : (DigitalSensor)sensor,
-						signal instanceof String ? (DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DigitalSignalConstant)signal)
+							state1 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state1) : (State)state1,
+							state2 instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state2) : (State)state2,
+							expr
+					)
 				}]
 			},
 			after: { delay ->

@@ -2,9 +2,13 @@ name: Build ArduinoML Project
 
 on:
   push:
-    branches: [ "*" ]
+    branches:
+      - master
+      - "**"
   pull_request:
-    branches: [ "*" ]
+    branches:
+      - master
+      - "**"
 
 jobs:
   build:

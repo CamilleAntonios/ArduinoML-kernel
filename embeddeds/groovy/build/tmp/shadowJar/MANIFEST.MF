@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: GroovuinoML
+Class-Path: groovy-4.0.6.jar kernel-jvm-1.0.jar
+

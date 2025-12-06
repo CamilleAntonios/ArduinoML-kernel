@@ -1,0 +1,43 @@
+name: Build Internal GroovuinoML DSL
+
+on:
+  push:
+    branches:
+      - master
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 for kernel
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build Kernel (JDK21)
+        run: |
+          cd kernels/jvm
+          mvn -B clean install
+
+      - name: Set up JDK 8 for Groovy DSL
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Build GroovuinoML DSL (JDK8)
+        run: |
+          cd embeddeds/groovy/GroovuinoML
+          mvn -B install
+          mvn -B clean compile assembly:single
+

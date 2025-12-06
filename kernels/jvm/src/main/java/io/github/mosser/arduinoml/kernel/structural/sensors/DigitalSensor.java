@@ -2,6 +2,7 @@ package io.github.mosser.arduinoml.kernel.structural.sensors;
 
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignal;
 
 public class DigitalSensor extends Brick {
 	@Override

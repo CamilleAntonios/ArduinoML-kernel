@@ -4,7 +4,7 @@ import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignal;
 
-public class DigitalSensor extends Brick implements DigitalSignal {
+public class DigitalSensor extends Brick {
 	@Override
 	public void accept(Visitor visitor) {
 		visitor.visit(this);

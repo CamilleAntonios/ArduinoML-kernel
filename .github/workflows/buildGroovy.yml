@@ -1,4 +1,4 @@
-name: Build ArduinoML Project
+name: Build Internal GroovuinoML DSL
 
 on:
   push:

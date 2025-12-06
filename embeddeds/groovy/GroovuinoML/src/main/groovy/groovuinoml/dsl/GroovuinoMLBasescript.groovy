@@ -2,9 +2,10 @@ package main.groovy.groovuinoml.dsl
 
 
 import io.github.mosser.arduinoml.kernel.behavioral.Action
+import io.github.mosser.arduinoml.kernel.behavioral.AnalogAction
 import io.github.mosser.arduinoml.kernel.behavioral.DigitalAction
 import io.github.mosser.arduinoml.kernel.behavioral.State
-import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator
+import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.Expression
@@ -14,6 +15,9 @@ import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoper
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.OrOperation
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor
+import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor
+import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalConstant
+import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalTransfer
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer
 import main.groovy.groovuinoml.dsl.GroovuinoMLBinding
@@ -24,16 +28,60 @@ abstract class GroovuinoMLBasescript extends Script {
 //	}
 
 	GroovuinoMLBasescript() {
-		Expression.metaClass.and = { other -> new AndOperation(delegate, other) }
-		Expression.metaClass.or = { other -> new OrOperation(delegate, other) }
-		Expression.metaClass.greaterThan = { rhs -> new BiggerAnalogOperation(delegate, rhs) }
-		Expression.metaClass.greaterOrEqual = { rhs -> new BiggerOrEqualAnalogOperation(delegate, rhs) }
-		Expression.metaClass.equalTo = { rhs -> new EqualAnalogOperation(delegate, rhs) }
 
+		// Conversion universelle Number/Sensor -> AnalogSignal
+		def toAnalogSignal = { obj ->
+			if (obj instanceof Number) return new AnalogSignalConstant(obj)
+			if (obj instanceof AnalogSensor) return new AnalogSignalTransfer(obj)
+			throw new RuntimeException("Cannot convert ${obj} to AnalogSignal")
+		}
+
+		// OPERATEURS LOGIQUES SUR LES EXPRESSIONS
+		Expression.metaClass.and = { other ->
+			return new AndOperation(delegate, other)
+		}
+		Expression.metaClass.or = { other ->
+			return new OrOperation(delegate, other)
+		}
+
+		// Égalité digitale
 		DigitalSensor.metaClass.equalTo = { right ->
 			def leftSignal = new DigitalSignalTransfer(delegate)
 			return new DigitalEqualOperation(leftSignal, right)
 		}
+
+		// OPERATEURS ANALOGIQUES POUR AnalogSensor
+		AnalogSensor.metaClass.greaterThan = { rhs ->
+			return new BiggerAnalogOperation(
+					toAnalogSignal(delegate),
+					toAnalogSignal(rhs)
+			)
+		}
+		AnalogSensor.metaClass.greaterOrEqual = { rhs ->
+			return new BiggerOrEqualAnalogOperation(
+					toAnalogSignal(delegate),
+					toAnalogSignal(rhs)
+			)
+		}
+		AnalogSensor.metaClass.smallerThan = { rhs ->
+			return new BiggerAnalogOperation(
+					toAnalogSignal(rhs),
+					toAnalogSignal(delegate)
+			)
+		}
+		AnalogSensor.metaClass.smallerOrEqual = { rhs ->
+			return new BiggerOrEqualAnalogOperation(
+					toAnalogSignal(rhs),
+					toAnalogSignal(delegate)
+			)
+		}
+		AnalogSensor.metaClass.equalTo = { rhs ->
+			return new EqualAnalogOperation(
+					toAnalogSignal(delegate),
+					toAnalogSignal(rhs)
+			)
+		}
+
 	}
 
 	// sensor "name" pin n
@@ -46,6 +94,14 @@ abstract class GroovuinoMLBasescript extends Script {
 	def actuator(String name) {
 		[pin: { n -> ((GroovuinoMLBinding)this.getBinding()).getGroovuinoMLModel().createActuator(name, n) }]
 	}
+
+	def analogSensor(String name) {
+		[pin: { n -> ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createAnalogSensor(name, n) }]
+	}
+
+	def analogActuator(String name) {
+		[pin: { n -> ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createAnalogActuator(name, n) }]
+	}
 	
 	// state "name" means actuator becomes signal [and actuator becomes signal]*n
 	def state(String name) {
@@ -53,17 +109,28 @@ abstract class GroovuinoMLBasescript extends Script {
 		((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createState(name, actions)
 		// recursive closure to allow multiple and statements
 		def closure
-		closure = { actuator -> 
-			[becomes: { signal ->
-				Action action = new DigitalAction()
-				action.setActuator(actuator instanceof String ? (DigitalActuator)((GroovuinoMLBinding)this.getBinding()).getVariable(actuator) : (DigitalActuator)actuator)
-				action.setValue(signal instanceof String ? (DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(signal) : (DigitalSignalConstant)signal)
+		closure = { actuator ->
+			[becomes: { value ->
+				Action action
+				if (actuator instanceof AnalogActuator) {
+					action = new AnalogAction()
+					action.setActuator(actuator)
+					action.setValue(new AnalogSignalConstant(value))
+				} else {
+					action = new DigitalAction()
+					action.setActuator(actuator)
+					action.setValue(value instanceof String ?
+							(DigitalSignalConstant)((GroovuinoMLBinding)this.getBinding()).getVariable(value) :
+							(DigitalSignalConstant)value)
+				}
 				actions.add(action)
 				[and: closure]
 			}]
 		}
 		[means: closure]
 	}
+
+
 	// initial state
 	def initial(state) {
 		((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().setInitialState(state instanceof String ? (State)((GroovuinoMLBinding)this.getBinding()).getVariable(state) : (State)state)

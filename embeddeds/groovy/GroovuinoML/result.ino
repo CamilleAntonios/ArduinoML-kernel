@@ -1,36 +1,40 @@
 // Wiring code generated from an ArduinoML model
-// Application name: DualCheckAlarm
+// Application name: SmartClimate
 
 long debounce = 200;
 
-enum STATE {alarm, idle};
-STATE currentState = idle;
-
-boolean b1BounceGuard = false;
-long b1LastDebounceTime = 0;
-
-boolean b2BounceGuard = false;
-long b2LastDebounceTime = 0;
+enum STATE {Idle, Cooling, Drying, Brightening, Emergency};
+STATE currentState = Idle;
 
 void setup(){
-  pinMode(9, INPUT);  // b1 [Digital Sensor]
-  pinMode(10, INPUT);  // b2 [Digital Sensor]
-  pinMode(11, OUTPUT); // buzzer [Digital Actuator]
+  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : temperature 
+  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : humidity 
+  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : light 
+  pinMode(3, OUTPUT); // fan [Analogic Actuator]
+  pinMode(4, OUTPUT); // led [Analogic Actuator]
 }
 
 void loop() {
 	switch(currentState){
-		case alarm:
-			digitalWrite(11,HIGH);
-			if (((digitalRead(9) == LOW) || (digitalRead(10) == LOW))) {
-				currentState = idle;
-			}
+		case Idle:
+			analogWrite(3,0);
+			analogWrite(4,50);
 		break;
-		case idle:
-			digitalWrite(11,LOW);
-			if (((digitalRead(9) == HIGH) && (digitalRead(10) == HIGH))) {
-				currentState = alarm;
-			}
+		case Cooling:
+			analogWrite(3,200);
+			analogWrite(4,80);
+		break;
+		case Drying:
+			analogWrite(3,150);
+			analogWrite(4,60);
+		break;
+		case Brightening:
+			analogWrite(3,0);
+			analogWrite(4,255);
+		break;
+		case Emergency:
+			analogWrite(3,255);
+			analogWrite(4,0);
 		break;
 	}
 }

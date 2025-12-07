@@ -25,74 +25,53 @@ initial "Idle"
 //  TRANSITIONS FROM IDLE
 // -------------------------------
 
-from "Idle" to "Emergency" when
-temperature.greaterThan(30)
-        .and(humidity.greaterThan(60))
+from "Idle" to "Emergency" when temperature.greaterThan(30).and(humidity.greaterThan(60))
 
-from "Idle" to "Cooling" when
-temperature.greaterThan(25)
+from "Idle" to "Cooling" when temperature.greaterThan(25)
 
-from "Idle" to "Drying" when
-humidity.greaterThan(50)
+from "Idle" to "Drying" when humidity.greaterThan(50)
 
-from "Idle" to "Brightening" when
-light.smallerThan(40)
+from "Idle" to "Brightening" when light.smallerThan(40)
 
 
 // -------------------------------
 //  TRANSITIONS FROM COOLING
 // -------------------------------
 
-from "Cooling" to "Emergency" when
-temperature.greaterThan(35)
-        .or(humidity.greaterThan(70))
+from "Cooling" to "Emergency" when temperature.greaterThan(35).or(humidity.greaterThan(70))
 
-from "Cooling" to "Idle" when
-temperature.smallerThan(23)
-        .and(humidity.smallerThan(45))
+from "Cooling" to "Idle" when temperature.smallerThan(23).and(humidity.smallerThan(45))
 
-from "Cooling" to "Drying" when
-humidity.greaterThan(55)
+from "Cooling" to "Drying" when humidity.greaterThan(55)
 
 
 // -------------------------------
 //  TRANSITIONS FROM DRYING
 // -------------------------------
 
-from "Drying" to "Cooling" when
-temperature.greaterThan(27)
+from "Drying" to "Cooling" when temperature.greaterThan(27)
 
-from "Drying" to "Idle" when
-temperature.smallerThan(23)
-        .and(humidity.smallerThan(45))
+from "Drying" to "Idle" when temperature.smallerThan(23).and(humidity.smallerThan(45))
 
 
 // -------------------------------
 //  TRANSITIONS FROM BRIGHTENING
 // -------------------------------
 
-from "Brightening" to "Idle" when
-light.greaterThan(60)
+from "Brightening" to "Idle" when light.greaterThan(60)
 
-from "Brightening" to "Emergency" when
-temperature.greaterThan(32)
-        .and(humidity.greaterThan(65))
+from "Brightening" to "Emergency" when temperature.greaterThan(32).and(humidity.greaterThan(65))
 
 
 // -------------------------------
 //  TRANSITIONS FROM EMERGENCY
 // -------------------------------
 
-from "Emergency" to "Cooling" when
-temperature.smallerThan(25)
-        .and(humidity.smallerThan(50))
+from "Emergency" to "Cooling" when temperature.smallerThan(25).and(humidity.smallerThan(50))
 
-from "Emergency" to "Idle" when
-temperature.smallerThan(25)
-        .and(humidity.smallerThan(45))
+from "Emergency" to "Idle" when temperature.smallerThan(25).and(humidity.smallerThan(45))
 
-from "Emergency" to "Brightening" when
-light.smallerThan(40)
+from "Emergency" to "Brightening" when light.smallerThan(40)
 
 
 // --- Export Wiring code ---

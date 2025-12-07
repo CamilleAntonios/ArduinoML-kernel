@@ -8,7 +8,13 @@ import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstan
 public class DigitalEqualOperation implements Expression {
     private DigitalSignal left;
     private DigitalSignal right;
+
     public DigitalEqualOperation(DigitalSignal left, DigitalSignal right) {
+        if (left instanceof DigitalSignalConstant && right instanceof DigitalSignalConstant) {
+            //Nous avons fait le choix de coder cela avec un check de type dynamique, car
+            //effectuer cette vérification avec un typage statique créerait beaucoup de duplication de classes.
+            throw new IllegalArgumentException("Arguments of a '==' check cant be both constants !");
+        }
         this.left = left;
         this.right = right;
     }

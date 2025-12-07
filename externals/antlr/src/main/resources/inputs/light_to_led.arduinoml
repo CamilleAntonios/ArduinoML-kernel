@@ -1,0 +1,15 @@
+application lightToLed
+
+sensor lightSensor : 1 analogical
+actuator led : 10 analogical
+sensor button : 9 digital
+
+INIT transmit {
+    led <= lightSensor
+    if(button == HIGH) => halt
+}
+
+halt {
+    led <= 0
+    if(button == LOW) => transmit
+}

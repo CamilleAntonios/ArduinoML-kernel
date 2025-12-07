@@ -1,0 +1,15 @@
+application dualCheckAlarm
+
+sensor firstButton : 9 digital
+sensor secondButton : 10 digital
+actuator buzzer : 11 digital
+
+INIT off {
+    buzzer <= LOW
+    if ( firstButton == HIGH and secondButton == HIGH ) => on
+}
+
+on {
+    buzzer <= HIGH
+    if( firstButton == LOW or secondButton == LOW ) => off
+}

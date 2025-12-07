@@ -1,0 +1,14 @@
+application lightSensorAlarm
+
+sensor lightSensor : 1 analogical
+actuator led : 10 digital
+
+INIT off {
+    led <= LOW
+    if( lightSensor < 200) => on
+}
+
+on {
+    led <= HIGH
+    if( lightSensor >= 200) => off
+}

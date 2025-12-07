@@ -6,8 +6,9 @@ import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
-import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigConstant;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer;
 
@@ -37,11 +38,11 @@ public class Switch {
 		// Creating actions
 		DigitalAction switchTheLightOn = new DigitalAction();
 		switchTheLightOn.setActuator(led);
-		switchTheLightOn.setValue(DigitalSignalConstant.HIGH);
+		switchTheLightOn.setValue(new DigitalSignalConstant(DigConstant.HIGH));
 
 		DigitalAction switchTheLightOff = new DigitalAction();
 		switchTheLightOff.setActuator(led);
-		switchTheLightOff.setValue(DigitalSignalConstant.LOW);
+		switchTheLightOff.setValue(new DigitalSignalConstant(DigConstant.LOW));
 
 		// Binding actions to states
 		on.setActions(Arrays.asList(switchTheLightOn));
@@ -50,12 +51,12 @@ public class Switch {
 		// Creating transitions
 		BasicTransition on2off = new BasicTransition();
 		on2off.setNext(off);
-		on2off.setCondition(new DigitalEqualOperation(buttonValue, DigitalSignalConstant.LOW));
+		on2off.setCondition(new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.LOW)));
 
 
 		BasicTransition off2on = new BasicTransition();
 		off2on.setNext(on);
-		off2on.setCondition(new DigitalEqualOperation(buttonValue, DigitalSignalConstant.HIGH));
+		off2on.setCondition(new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.HIGH)));
 
 
 		// Binding transitions to states

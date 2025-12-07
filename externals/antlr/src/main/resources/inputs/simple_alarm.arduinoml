@@ -1,0 +1,18 @@
+application simpleAlarm
+
+sensor button : 9 digital
+actuator led : 10 digital
+actuator buzzer : 11 digital
+
+INIT off {
+    led <= LOW
+    buzzer <= LOW
+    if ( button == HIGH ) => on
+}
+
+on {
+    led <= HIGH
+    buzzer <= HIGH
+    if(button == LOW) => off
+}
+

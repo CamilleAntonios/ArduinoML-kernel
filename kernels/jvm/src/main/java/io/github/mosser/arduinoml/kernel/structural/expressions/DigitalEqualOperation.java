@@ -1,4 +1,4 @@
-package io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations;
+package io.github.mosser.arduinoml.kernel.structural.expressions;
 
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.expressions.Expression;

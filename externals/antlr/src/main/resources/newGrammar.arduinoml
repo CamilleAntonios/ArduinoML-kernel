@@ -17,7 +17,7 @@ INIT quiet {
 
 alarmon {
     alarm <= HIGH
-    if (not (temperature <= 35) and ((HIGH == HIGH or HIGH == LOW) and LOW==LOW)) => quiet
+    if (not (temperature <= 35) and HIGH == bouton)=> quiet
 }
 
 ultraalarmon {

@@ -4,6 +4,8 @@ import java.util.Map;
 
 import groovy.lang.Binding;
 import groovy.lang.Script;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigConstant;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
 public class GroovuinoMLBinding extends Binding {
 	// can be useful to return the script in case of syntax trick
@@ -31,6 +33,10 @@ public class GroovuinoMLBinding extends Binding {
 	
 	public void setGroovuinoMLModel(GroovuinoMLModel model) {
 		this.model = model;
+		this.setVariable("HIGH", new DigitalSignalConstant(DigConstant.HIGH));
+		this.setVariable("LOW",  new DigitalSignalConstant(DigConstant.LOW));
+		this.setVariable("high", new DigitalSignalConstant(DigConstant.HIGH));
+		this.setVariable("low",  new DigitalSignalConstant(DigConstant.LOW));
 	}
 	
 	public Object getVariable(String name) {

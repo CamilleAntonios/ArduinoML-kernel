@@ -1,35 +1,34 @@
 // Wiring code generated from an ArduinoML model
-// Application name: DualCheckAlarm
+// Application name: VerySimpleAlarm
 
 long debounce = 200;
 
-enum STATE {alarm, idle};
-STATE currentState = idle;
+enum STATE {on, off};
+STATE currentState = off;
 
-boolean b1BounceGuard = false;
-long b1LastDebounceTime = 0;
-
-boolean b2BounceGuard = false;
-long b2LastDebounceTime = 0;
+boolean buttonBounceGuard = false;
+long buttonLastDebounceTime = 0;
 
 void setup(){
-  pinMode(9, INPUT);  // b1 [Digital Sensor]
-  pinMode(10, INPUT);  // b2 [Digital Sensor]
+  pinMode(9, INPUT);  // button [Digital Sensor]
+  pinMode(12, OUTPUT); // led [Digital Actuator]
   pinMode(11, OUTPUT); // buzzer [Digital Actuator]
 }
 
 void loop() {
 	switch(currentState){
-		case alarm:
+		case on:
+			digitalWrite(12,HIGH);
 			digitalWrite(11,HIGH);
-			if (((digitalRead(9) == LOW) || (digitalRead(10) == LOW))) {
-				currentState = idle;
+			if ((digitalRead(9) == LOW)) {
+				currentState = off;
 			}
 		break;
-		case idle:
+		case off:
+			digitalWrite(12,LOW);
 			digitalWrite(11,LOW);
-			if (((digitalRead(9) == HIGH) && (digitalRead(10) == HIGH))) {
-				currentState = alarm;
+			if ((digitalRead(9) == HIGH)) {
+				currentState = on;
 			}
 		break;
 	}

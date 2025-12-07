@@ -7,9 +7,11 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
+import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
 import io.github.mosser.arduinoml.kernel.structural.expressions.Expression;
+import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 
@@ -42,7 +44,24 @@ public class GroovuinoMLModel {
 		this.bricks.add(actuator);
 		this.binding.setVariable(name, actuator);
 	}
-	
+
+	public void createAnalogSensor(String name, Integer pinNumber) {
+		AnalogSensor sensor = new AnalogSensor();
+		sensor.setName(name);
+		sensor.setPin(pinNumber);
+		this.bricks.add(sensor);
+		this.binding.setVariable(name, sensor);
+	}
+
+	public void createAnalogActuator(String name, Integer pinNumber) {
+		AnalogActuator actuator = new AnalogActuator();
+		actuator.setName(name);
+		actuator.setPin(pinNumber);
+		this.bricks.add(actuator);
+		this.binding.setVariable(name, actuator);
+	}
+
+
 	public void createState(String name, List<Action> actions) {
 		State state = new State();
 		state.setName(name);

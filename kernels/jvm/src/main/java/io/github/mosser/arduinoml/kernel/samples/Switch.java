@@ -6,7 +6,7 @@ import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
-import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigConstant;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;

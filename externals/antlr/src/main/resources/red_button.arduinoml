@@ -1,16 +1,36 @@
-application redButton
+application unTestDecriture
+
+# Ce scénario fait les choses suivantes :
+# -définir un lecteur de température analogique
+# -définit une alarme, qui est juste allumé ou non
+# -définit une "ultra_alarm", qui a une valeur analogique qui lui est donné pour varier son niveau d'alarme.
+# L'algorithme est le suivant
+# -de base, on ne fait rien.
+#       -alors, si température > 35, on allume l'alarme (état "alarm_on")
+#       -mais si température est PLUS GRANDE que 75, on active l'état "ultra_alarm", qui en plus d'allumer l'alarme
+#       donne à l'ultra alarm la même valeur que la mesure de température
 
 # Declaring bricks
-sensor button: 9
-actuator led: 12
+sensor temperature : 9 analogical
+actuator alarm : 12 digital
+actuator ultra_alarm : 13 analog
 
 # Declaring states
-on {
-    led <= HIGH
-    button is HIGH => off
+INIT quiet {
+    alarm <= LOW
+    ultra_alarm <= 0
+    if (temperature > 35 && temperature < 75) => alarm_on
+    if (not (temperature <= 75) ) => ultra_alarm_on # l'espace entre le "not" et ses parenthèses est optionnel
 }
 
--> off {
-    led <= LOW
-    button is HIGH => on
+alarm_on {
+    alarm <= HIGH
+    if (temperature <= 35) => quiet
+}
+
+ultra_alarm_on {
+    alarm <= HIGH
+    ultra_alarm <= FROM(temperature) #lit depuis le sensor analogique "temperature"
+
+    if (temperature <= 75) => alarm_on
 }

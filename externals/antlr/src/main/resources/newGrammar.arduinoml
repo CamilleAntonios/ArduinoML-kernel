@@ -1,0 +1,28 @@
+application unTestDecriture
+
+# Declaring bricks
+actuator ultra : 7 analogical
+sensor temperature : 9 analogical
+actuator alarm : 12 digital
+sensor lumiere : 2 analogical
+sensor bouton : 3 digital
+
+# Declaring states
+INIT quiet {
+    alarm <= LOW
+    ultra <= 0
+    if (temperature > 78 and temperature < 75) => alarmon
+    if (not temperature <= 75 ) => ultraalarmon # l'espace entre le "not" et ses parenthèses est optionnel
+}
+
+alarmon {
+    alarm <= HIGH
+    if (not (temperature <= 35) and ((HIGH == HIGH or HIGH == LOW) and LOW==LOW)) => quiet
+}
+
+ultraalarmon {
+    ultra <= lumiere
+    alarm <= bouton
+
+    if (temperature <= 75 and lumiere >= temperature) => alarmon
+}

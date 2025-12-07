@@ -1,5 +1,5 @@
 // Wiring code generated from an ArduinoML model
-// Application name: lightToLed
+// Application name: tempToLed
 
 long debounce = 200;
 
@@ -10,7 +10,7 @@ boolean buttonBounceGuard = false;
 long buttonLastDebounceTime = 0;
 
 void setup(){
-  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : lightSensor
+  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : tempSensor
   pinMode(10, OUTPUT); // led [Analogic Actuator]
   pinMode(9, INPUT);  // button [Digital Sensor]
 }

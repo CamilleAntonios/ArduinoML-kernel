@@ -1,11 +1,11 @@
-application lightToLed
+application tempToLed
 
-sensor lightSensor : 1 analogical
+sensor tempSensor : 1 analogical
 actuator led : 10 analogical
 sensor button : 9 digital
 
 INIT transmit {
-    led <= lightSensor
+    led <= tempSensor
     if(button == HIGH) => halt
 }
 

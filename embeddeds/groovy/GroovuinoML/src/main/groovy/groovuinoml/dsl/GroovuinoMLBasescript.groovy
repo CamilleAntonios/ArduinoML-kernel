@@ -115,9 +115,23 @@ abstract class GroovuinoMLBasescript extends Script {
 				Action action
 				// --- ANALOG ACTUATOR ---
 				if (actuator instanceof AnalogActuator) {
+
 					action = new AnalogAction()
 					action.setActuator(actuator)
-					action.setValue(new AnalogSignalConstant(value))
+
+					if (value instanceof Number) {
+						// ex : led becomes 50
+						action.setValue(new AnalogSignalConstant(value))
+
+					} else if (value instanceof AnalogSensor) {
+						// ex : led becomes tempSensor
+						action.setValue(new AnalogSignalTransfer(value))
+
+					} else {
+						throw new RuntimeException(
+								"Analog actuator '${actuator.name}' requires a number or an analog sensor, got: ${value}"
+						)
+					}
 
 					// --- DIGITAL ACTUATOR ---
 				} else {

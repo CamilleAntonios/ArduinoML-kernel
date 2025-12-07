@@ -10,11 +10,9 @@ state "idle" means buzzer becomes low and led becomes low
 
 initial "idle"
 
-// idle → buzzing
+
 from idle to buzzing when button becomes high
-// buzzing → lighting
 from buzzing to lighting when button becomes high
-// lighting → idle
 from lighting to idle when button becomes high
 
 export "MultiStateAlarm"

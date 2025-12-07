@@ -1,40 +1,35 @@
 // Wiring code generated from an ArduinoML model
-// Application name: SmartClimate
+// Application name: VerySimpleAlarm
 
 long debounce = 200;
 
-enum STATE {Idle, Cooling, Drying, Brightening, Emergency};
-STATE currentState = Idle;
+enum STATE {on, off};
+STATE currentState = off;
+
+boolean buttonBounceGuard = false;
+long buttonLastDebounceTime = 0;
 
 void setup(){
-  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : temperature 
-  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : humidity 
-  // NO INITIALIZATION NEEDED FOR READING AN ANALOGIC-SENSOR : light 
-  pinMode(3, OUTPUT); // fan [Analogic Actuator]
-  pinMode(4, OUTPUT); // led [Analogic Actuator]
+  pinMode(9, INPUT);  // button [Digital Sensor]
+  pinMode(12, OUTPUT); // led [Digital Actuator]
+  pinMode(11, OUTPUT); // buzzer [Digital Actuator]
 }
 
 void loop() {
 	switch(currentState){
-		case Idle:
-			analogWrite(3,0);
-			analogWrite(4,50);
+		case on:
+			digitalWrite(12,HIGH);
+			digitalWrite(11,HIGH);
+			if ((digitalRead(9) == LOW)) {
+				currentState = off;
+			}
 		break;
-		case Cooling:
-			analogWrite(3,200);
-			analogWrite(4,80);
-		break;
-		case Drying:
-			analogWrite(3,150);
-			analogWrite(4,60);
-		break;
-		case Brightening:
-			analogWrite(3,0);
-			analogWrite(4,255);
-		break;
-		case Emergency:
-			analogWrite(3,255);
-			analogWrite(4,0);
+		case off:
+			digitalWrite(12,LOW);
+			digitalWrite(11,LOW);
+			if ((digitalRead(9) == HIGH)) {
+				currentState = on;
+			}
 		break;
 	}
 }

@@ -5,7 +5,7 @@ import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
 import io.github.mosser.arduinoml.kernel.structural.actuators.AnalogActuator;
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
-import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation;
+import io.github.mosser.arduinoml.kernel.structural.expressions.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.NotOperation;
 import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.*;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.AndOperation;

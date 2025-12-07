@@ -1,0 +1,22 @@
+application multiStateBasedAlarm
+
+sensor button : 9 digital
+actuator led : 10 digital
+actuator buzzer : 11 digital
+
+INIT off {
+    led <= LOW
+    buzzer <= LOW
+    if ( button == HIGH  ) => on
+}
+
+on {
+    buzzer <= HIGH
+    if( button == HIGH ) => onSuper
+}
+
+onSuper {
+    buzzer <= LOW
+    led <= HIGH
+    if ( button == HIGH ) => off
+}

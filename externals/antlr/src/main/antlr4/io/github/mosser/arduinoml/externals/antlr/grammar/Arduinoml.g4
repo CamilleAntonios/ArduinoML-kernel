@@ -49,7 +49,7 @@ signalRead : sensor_name=IDENTIFIER ;
  ** Lexer rules **
  *****************/
 
-PORT_NUMBER     :   [1-9] | '11' | '12' ;
+PORT_NUMBER     :   [1-9] | '10' | '11' | '12' ;
 IDENTIFIER      :   LOWERCASE (LOWERCASE|UPPERCASE)+ ;
 DIGITAL_SIGNAL_CONST : 'HIGH' | 'LOW' ;
 ANALOG_SIGNAL_CONST : '0'

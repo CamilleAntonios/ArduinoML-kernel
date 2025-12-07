@@ -1,4 +1,4 @@
-application lightSensorAlarm
+application AnalogFire
 
 sensor lightSensor : 1 analogical
 actuator led : 10 digital

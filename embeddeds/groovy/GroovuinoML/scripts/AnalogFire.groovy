@@ -6,6 +6,7 @@ state "Alert" means alarm becomes 255
 
 initial "Idle"
 
-from "Idle" to "Alert" when temperature.greaterThan(57).and(temperature.smallerThan(50))
+from "Idle" to "Alert" when temperature.greaterThan(57)
+from "Idle" to "Alert" when temperature.smallerThan(57)
 
 export "fireDetection"

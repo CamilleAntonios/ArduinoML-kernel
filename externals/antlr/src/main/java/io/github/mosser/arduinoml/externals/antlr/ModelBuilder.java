@@ -163,12 +163,12 @@ public class ModelBuilder extends ArduinomlBaseListener {
         try {
             String textValue=ctx.DIGITAL_SIGNAL_CONST().getSymbol().getText();
             if (textValue.equalsIgnoreCase("HIGH") || textValue.equalsIgnoreCase("LOW")) {
-                DigitalSignalConstant value = DigitalSignalConstant.valueOf(textValue.toUpperCase());
+                DigConstant value = DigConstant.valueOf(textValue.toUpperCase());
                 if (this.currentDigitalAction.isPresent()) {
-                    this.currentDigitalAction.get().setValue(value);
+                    this.currentDigitalAction.get().setValue(new DigitalSignalConstant(value));
                 }
                 else {//le cas où on est dans une expression
-                    digitalSignalsStack.add(value);
+                    digitalSignalsStack.add(new DigitalSignalConstant(value));
                 }
             }
         }

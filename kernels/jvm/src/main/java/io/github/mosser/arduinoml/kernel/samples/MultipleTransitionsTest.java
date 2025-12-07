@@ -9,12 +9,9 @@ import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.expressions.digitalbinaryoperations.DigitalEqualOperation;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
 import io.github.mosser.arduinoml.kernel.structural.sensors.AnalogSensor;
-import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalConstant;
-import io.github.mosser.arduinoml.kernel.structural.signals.AnalogSignalTransfer;
-import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
+import io.github.mosser.arduinoml.kernel.structural.signals.*;
 
 import io.github.mosser.arduinoml.kernel.structural.expressions.analogbinaryoperations.BiggerAnalogOperation;
-import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalTransfer;
 
 import java.util.Arrays;
 
@@ -56,11 +53,11 @@ public class MultipleTransitionsTest {
          ***************************************************/
         DigitalAction buzzerOn = new DigitalAction();
         buzzerOn.setActuator(buzzer);
-        buzzerOn.setValue(DigitalSignalConstant.HIGH);
+        buzzerOn.setValue(new DigitalSignalConstant(DigConstant.HIGH));
 
         DigitalAction buzzerOff = new DigitalAction();
         buzzerOff.setActuator(buzzer);
-        buzzerOff.setValue(DigitalSignalConstant.LOW);
+        buzzerOff.setValue(new DigitalSignalConstant(DigConstant.LOW));
 
         idle.setActions(Arrays.asList(buzzerOff));
         alarm.setActions(Arrays.asList(buzzerOn));
@@ -72,10 +69,10 @@ public class MultipleTransitionsTest {
          ***************************************************/
         // button == HIGH
         DigitalSignalTransfer buttonValue = new DigitalSignalTransfer(button);
-        DigitalEqualOperation buttonHigh = new DigitalEqualOperation(buttonValue, DigitalSignalConstant.HIGH);
+        DigitalEqualOperation buttonHigh = new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.HIGH));
 
         // button == LOW
-        DigitalEqualOperation buttonLow = new DigitalEqualOperation(buttonValue, DigitalSignalConstant.LOW);
+        DigitalEqualOperation buttonLow = new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.LOW));
         AnalogSignalTransfer tempValue = new AnalogSignalTransfer(temp);
 
         // analog constant 57°C

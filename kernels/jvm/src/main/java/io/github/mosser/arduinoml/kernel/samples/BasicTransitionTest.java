@@ -7,6 +7,7 @@ import io.github.mosser.arduinoml.kernel.generator.Visitor;
 
 import io.github.mosser.arduinoml.kernel.structural.actuators.DigitalActuator;
 import io.github.mosser.arduinoml.kernel.structural.sensors.DigitalSensor;
+import io.github.mosser.arduinoml.kernel.structural.signals.DigConstant;
 import io.github.mosser.arduinoml.kernel.structural.signals.DigitalSignalConstant;
 
 import io.github.mosser.arduinoml.kernel.structural.expressions.*;
@@ -49,11 +50,11 @@ public class BasicTransitionTest {
          ***************************************************/
         DigitalAction ledOn = new DigitalAction();
         ledOn.setActuator(led);
-        ledOn.setValue(DigitalSignalConstant.HIGH);
+        ledOn.setValue(new DigitalSignalConstant(DigConstant.HIGH));
 
         DigitalAction ledOff = new DigitalAction();
         ledOff.setActuator(led);
-        ledOff.setValue(DigitalSignalConstant.LOW);
+        ledOff.setValue(new DigitalSignalConstant(DigConstant.LOW));
 
         idle.setActions(Arrays.asList(ledOff));
         checking.setActions(Arrays.asList(ledOn));
@@ -65,18 +66,18 @@ public class BasicTransitionTest {
          ***************************************************/
         // button == HIGH
         DigitalSignalTransfer buttonValue = new DigitalSignalTransfer(button);
-        DigitalEqualOperation exprSimple = new DigitalEqualOperation(buttonValue, DigitalSignalConstant.HIGH);
+        DigitalEqualOperation exprSimple = new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.HIGH));
 
         // !(button == LOW)
-        NotOperation exprNot = new NotOperation(new DigitalEqualOperation(buttonValue, DigitalSignalConstant.LOW));
+        NotOperation exprNot = new NotOperation(new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.LOW)));
 
         // (button == HIGH) && !(button == LOW)
         AndOperation exprAnd = new AndOperation(exprSimple, exprNot);
 
         // (button == HIGH) ^ (button == LOW)
         XorOperation exprXor = new XorOperation(
-                new DigitalEqualOperation(buttonValue, DigitalSignalConstant.HIGH),
-                new DigitalEqualOperation(buttonValue, DigitalSignalConstant.LOW)
+                new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.HIGH)),
+                new DigitalEqualOperation(buttonValue, new DigitalSignalConstant(DigConstant.LOW))
         );
 
 
